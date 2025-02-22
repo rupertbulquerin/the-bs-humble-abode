@@ -17,11 +17,9 @@ export async function GET() {
     const icalContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//The B\'s Humble Abode//EN',
+      'PRODID:-//The Bs Humble Abode//NONSGML v1.0//EN',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:The B\'s Humble Abode Bookings',
-      'X-WR-TIMEZONE:Asia/Manila',
       ...bookings.map(booking => [
         'BEGIN:VEVENT',
         `UID:${booking.id}@the-bs-humble-abode`,
@@ -30,8 +28,6 @@ export async function GET() {
         `DTEND;VALUE=DATE:${format(new Date(booking.checkOut), 'yyyyMMdd')}`,
         'SUMMARY:Unavailable',
         'STATUS:CONFIRMED',
-        'TRANSP:OPAQUE',
-        'X-MICROSOFT-CDO-BUSYSTATUS:OOF',
         'END:VEVENT'
       ]).flat(),
       'END:VCALENDAR'
@@ -40,7 +36,7 @@ export async function GET() {
     return new Response(icalContent, {
       headers: {
         'Content-Type': 'text/calendar; charset=utf-8',
-        'Content-Disposition': 'attachment; filename=calendar.ics',
+        'Content-Disposition': 'attachment; filename="calendar.ics"',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
