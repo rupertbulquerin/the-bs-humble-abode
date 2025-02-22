@@ -105,18 +105,18 @@
       </div>
   
       <!-- Booking details -->
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div class="grid grid-cols-1 gap-6">
         <div>
           <label class="block text-sm font-medium text-gray-700">Booking Details</label>
           <div class="relative mt-1">
-            <div class="flex gap-4">
+            <div class="flex flex-col gap-4 sm:flex-row">
               <div>
                 <label class="block text-sm font-medium text-gray-700">Check In</label>
                 <button
                   type="button"
                   data-datepicker-trigger
                   on:click={() => showCalendar = !showCalendar}
-                  class="mt-1 w-40 rounded-md border-gray-300 px-4 py-2.5 text-left shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  class="mt-1 w-full sm:w-40 rounded-md border-gray-300 px-4 py-2.5 text-left shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 >
                   {#if checkIn}
                     {format(new Date(checkIn), 'MMM d, yyyy')}
@@ -132,7 +132,7 @@
                   type="button"
                   data-datepicker-trigger
                   on:click={() => showCalendar = !showCalendar}
-                  class="mt-1 w-40 rounded-md border-gray-300 px-4 py-2.5 text-left shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  class="mt-1 w-full sm:w-40 rounded-md border-gray-300 px-4 py-2.5 text-left shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 >
                   {#if checkOut}
                     {format(new Date(checkOut), 'MMM d, yyyy')}
@@ -157,7 +157,7 @@
                     min="1"
                     max="3"
                     required
-                    class="w-30 rounded-md border-gray-300 pl-10 pr-3 py-2.5 shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                    class="w-full sm:w-40 rounded-md border-gray-300 pl-10 pr-3 py-2.5 shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                   />
                 </div>
               </div>

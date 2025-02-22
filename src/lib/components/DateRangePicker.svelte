@@ -81,37 +81,51 @@
   {#if showCalendar}
     <div 
       bind:this={calendarContainer}
-      class="absolute left-0 top-2 z-50 w-[690px] rounded-lg bg-white p-4 shadow-xl"
+      class="absolute left-0 top-2 z-50 w-full sm:w-[690px] rounded-lg bg-white p-4 shadow-xl"
     >
-      <div class="flex justify-between">
-        <button type="button" class="p-2" on:click={prevMonth}>←</button>
-        <div class="flex gap-4">
-          {#each displayMonths as month}
-            <div class="w-72">
-              <div class="mb-4 text-center font-semibold">
-                {format(month, 'MMMM yyyy')}
-              </div>
-              <div class="grid grid-cols-7 gap-1 text-center text-sm">
-                {#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
-                  <div class="p-2 text-gray-500">{day}</div>
-                {/each}
-                {#each getDaysInMonth(month) as date}
-                  <button
-                    type="button"
-                    class="p-2 rounded-full hover:bg-gray-100 
-                      {isSelected(date) ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
-                      {isInRange(date) ? 'bg-gray-100' : ''}
-                      {isToday(date) ? 'font-bold' : ''}"
-                    on:click={() => handleDateClick(date)}
-                  >
-                    {format(date, 'd')}
-                  </button>
-                {/each}
-              </div>
+      <div class="flex flex-col sm:flex-row gap-4">
+        {#each displayMonths as month}
+          <div class="w-full">
+            <div class="flex items-center justify-between mb-4">
+              <button 
+                type="button" 
+                class="p-1 hover:bg-gray-100 rounded-full" 
+                on:click={prevMonth}
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="font-medium">{format(month, 'MMMM yyyy')}</span>
+              <button 
+                type="button" 
+                class="p-1 hover:bg-gray-100 rounded-full"
+                on:click={nextMonth}
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
-          {/each}
-        </div>
-        <button type="button" class="p-2" on:click={nextMonth}>→</button>
+            <div class="grid grid-cols-7 gap-1 text-center text-sm">
+              {#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
+                <div class="p-2 text-gray-500">{day}</div>
+              {/each}
+              {#each getDaysInMonth(month) as date}
+                <button
+                  type="button"
+                  class="p-2 rounded-full hover:bg-gray-100 
+                    {isSelected(date) ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
+                    {isInRange(date) ? 'bg-gray-100' : ''}
+                    {isToday(date) ? 'font-bold' : ''}"
+                  on:click={() => handleDateClick(date)}
+                >
+                  {format(date, 'd')}
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/each}
       </div>
     </div>
   {/if}

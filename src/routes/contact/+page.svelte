@@ -62,16 +62,15 @@
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <h2 class="text-xl font-semibold text-gray-800">Location</h2>
         <p class="mt-2 text-gray-600">
-          123 Property Street<br />
-          City, State 12345
+            Avida Tower 4, Donato Pison Avenue, Brgy. San Rafael, Mandurriao, Iloilo City, 5000
         </p>
       </div>
 
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <h2 class="text-xl font-semibold text-gray-800">Contact Info</h2>
         <p class="mt-2 text-gray-600">
-          Phone: (123) 456-7890<br />
-          Email: info@yourproperty.com
+          Phone: (+63) 9514-797997<br />
+          Email: rupert2133@gmail.com
         </p>
       </div>
     </div>
