@@ -35,11 +35,6 @@
             <h4 class="font-medium">{method.name}</h4>
             <p class="text-sm text-gray-600">{method.description}</p>
           </div>
-          <img 
-            src="/{method.icon}-logo.png" 
-            alt={method.name} 
-            class="h-8 w-auto"
-          />
         </div>
       </button>
     {/each}
