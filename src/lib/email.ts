@@ -17,7 +17,7 @@ function getPaymentInstructions(method: string) {
           <h3 style="margin-top: 0; color: #2d3748;">BPI Bank Transfer Details</h3>
           <p style="margin-bottom: 5px;"><strong>Account Name:</strong> Andrea Audine Jandogan</p>
           <p style="margin-bottom: 5px;"><strong>Account Number:</strong> 1339275862</p>
-          <p style="color: #4a5568; font-size: 14px;">Please send the screenshot of your payment to our contact number.</p>
+          <p style="color: #4a5568; font-size: 14px;">Please send the screenshot of your payment to this email.</p>
         </div>
       `;
     case 'gcash':
@@ -26,7 +26,7 @@ function getPaymentInstructions(method: string) {
           <h3 style="margin-top: 0; color: #2d3748;">GCash Payment Details</h3>
           <p style="margin-bottom: 5px;"><strong>Account Name:</strong> AN***A AU***E B.</p>
           <p style="margin-bottom: 5px;"><strong>GCash Number:</strong> 09162484363</p>
-          <p style="color: #4a5568; font-size: 14px;">Please send the screenshot of your payment to our contact number.</p>
+          <p style="color: #4a5568; font-size: 14px;">Please send the screenshot of your payment to this email.</p>
         </div>
       `;
     default:
