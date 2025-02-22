@@ -8,9 +8,7 @@ export async function GET() {
         checkOut: {
           gte: new Date()
         },
-        status: {
-          not: 'cancelled'
-        }
+        status: 'confirmed'
       }
     });
 
