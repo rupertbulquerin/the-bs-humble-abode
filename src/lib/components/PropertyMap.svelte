@@ -53,19 +53,13 @@
 </script>
 
 <svelte:head>
-  <link 
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-    crossorigin="" 
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </svelte:head>
 
 <div 
-  bind:this={mapElement} 
+  bind:this={mapElement}
   class="h-[300px] w-full rounded-lg shadow-md"
-  style="position: relative; overflow: hidden;"
-/>
+></div>
 
 <style>
   :global(.leaflet-container) {

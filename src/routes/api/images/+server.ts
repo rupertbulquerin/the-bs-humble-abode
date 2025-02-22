@@ -2,10 +2,6 @@ import { json } from '@sveltejs/kit';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 
-export const config = {
-  runtime: 'nodejs18.x'
-};
-
 export async function GET({ url }) {
   const category = url.searchParams.get('category');
   

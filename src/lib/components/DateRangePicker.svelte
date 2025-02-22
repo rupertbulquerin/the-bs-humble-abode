@@ -4,7 +4,6 @@
   
   export let checkIn: string;
   export let checkOut: string;
-  export let id: string = '';
   export let class_name: string = '';
   export let showCalendar: boolean = false;
 
