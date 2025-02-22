@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import prisma from '$lib/db';
+import { prisma } from '$lib/prisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 

@@ -14,7 +14,8 @@
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
-		"create-admin": "node scripts/create-admin.js"
+		"create-admin": "node scripts/create-admin.js",
+		"postinstall": "prisma generate"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import prisma from '$lib/db';
+import { prisma } from '$lib/prisma';
 import { startOfDay, endOfDay } from 'date-fns';
 
 export async function GET() {
