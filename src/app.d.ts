@@ -3,10 +3,18 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			adminId: string;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+	}
+	namespace NodeJS {
+		interface ProcessEnv {
+			DATABASE_URL: string;
+			JWT_SECRET: string;
+		}
 	}
 }
 

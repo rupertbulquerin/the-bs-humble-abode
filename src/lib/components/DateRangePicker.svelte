@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, isWithinInterval } from 'date-fns';
+  import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, isWithinInterval, isBefore } from 'date-fns';
   import { onMount } from 'svelte';
   
   export let checkIn: string;
@@ -14,6 +14,38 @@
   $: selectedStartDate = checkIn ? new Date(checkIn) : null;
   $: selectedEndDate = checkOut ? new Date(checkOut) : null;
 
+  let blockedDates: { start: Date; end: Date }[] = [];
+  
+  async function fetchBlockedDates() {
+    try {
+      const response = await fetch('/api/calendar');
+      const data = await response.json();
+      blockedDates = data.bookedDates.map((date: any) => ({
+        start: new Date(date.start),
+        end: new Date(date.end)
+      }));
+    } catch (error) {
+      console.error('Failed to fetch blocked dates:', error);
+    }
+  }
+
+  function isDateBlocked(date: Date) {
+    return blockedDates.some(blocked => 
+      isWithinInterval(date, { start: blocked.start, end: blocked.end })
+    );
+  }
+
+  function isDateRangeBlocked(start: Date, end: Date) {
+    return blockedDates.some(blocked => {
+      // Check if any part of the selected range overlaps with blocked dates
+      return (
+        (start <= blocked.end && end >= blocked.start) ||
+        isWithinInterval(blocked.start, { start, end }) ||
+        isWithinInterval(blocked.end, { start, end })
+      );
+    });
+  }
+
   function getDaysInMonth(date: Date) {
     const start = startOfMonth(date);
     const end = endOfMonth(date);
@@ -21,6 +53,8 @@
   }
 
   function handleDateClick(date: Date) {
+    if (isDateBlocked(date)) return;
+
     if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
       selectedStartDate = date;
       selectedEndDate = null;
@@ -31,6 +65,15 @@
         selectedStartDate = date;
         checkIn = format(date, 'yyyy-MM-dd');
       } else {
+        // Check if the selected range overlaps with any blocked dates
+        if (isDateRangeBlocked(selectedStartDate, date)) {
+          // If overlapping, reset selection
+          selectedStartDate = date;
+          selectedEndDate = null;
+          checkIn = format(date, 'yyyy-MM-dd');
+          checkOut = '';
+          return;
+        }
         selectedEndDate = date;
         checkOut = format(date, 'yyyy-MM-dd');
         showCalendar = false;
@@ -68,6 +111,7 @@
   }
 
   onMount(() => {
+    fetchBlockedDates();
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
@@ -114,7 +158,9 @@
               {#each getDaysInMonth(month) as date}
                 <button
                   type="button"
-                  class="p-2 rounded-full hover:bg-gray-100 
+                  disabled={isDateBlocked(date)}
+                  class="p-2 rounded-full 
+                    {isDateBlocked(date) ? 'bg-red-50 text-gray-400 cursor-not-allowed line-through' : 'hover:bg-gray-100'}
                     {isSelected(date) ? 'bg-gray-900 text-white hover:bg-gray-800' : ''}
                     {isInRange(date) ? 'bg-gray-100' : ''}
                     {isToday(date) ? 'font-bold' : ''}"

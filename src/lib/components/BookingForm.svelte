@@ -1,6 +1,9 @@
 <script lang="ts">
-    import { format, addDays } from 'date-fns';
+    import { format, addDays, isWithinInterval } from 'date-fns';
     import DateRangePicker from './DateRangePicker.svelte';
+    import { onMount } from 'svelte';
+    import GCashPayment from './GCashPayment.svelte';
+    import PaymentMethodSelect from './PaymentMethodSelect.svelte';
   
     export let price: number;
     export let extraPersonFee: number;
@@ -9,11 +12,13 @@
     let lastName = '';
     let email = '';
     let phone = '';
-    let checkIn = format(new Date(), 'yyyy-MM-dd');
-    let checkOut = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+    let checkIn = '';
+    let checkOut = '';
     let guests = 2;
     let specialRequests = '';
     let showCalendar = false;
+    let showPayment = false;
+    let bookingData: any = null;
   
     $: numberOfNights = checkIn && checkOut 
       ? (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
@@ -23,8 +28,40 @@
     $: basePrice = numberOfNights * price;
     $: totalPrice = basePrice + extraGuestsFee;
   
+    async function initializeDates() {
+      try {
+        const response = await fetch('/api/calendar');
+        const data = await response.json();
+        const blockedDates = data.bookedDates.map((date: any) => ({
+          start: new Date(date.start),
+          end: new Date(date.end)
+        }));
+  
+        // Find the first available date
+        let currentDate = new Date();
+        while (blockedDates.some(blocked => 
+          isWithinInterval(currentDate, { start: blocked.start, end: blocked.end })
+        )) {
+          currentDate = addDays(currentDate, 1);
+        }
+  
+        // Set initial dates
+        checkIn = format(currentDate, 'yyyy-MM-dd');
+        checkOut = format(addDays(currentDate, 1), 'yyyy-MM-dd');
+      } catch (error) {
+        console.error('Failed to initialize dates:', error);
+        // Fallback to current date if API fails
+        checkIn = format(new Date(), 'yyyy-MM-dd');
+        checkOut = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+      }
+    }
+  
+    onMount(() => {
+      initializeDates();
+    });
+  
     async function handleSubmit() {
-      const bookingData = {
+      bookingData = {
         firstName,
         lastName,
         email,
@@ -38,9 +75,54 @@
         totalPrice
       };
       
+      showPayment = true;
+    }
+  
+    async function handlePaymentMethodSelect(method: string) {
       try {
-        console.log('Booking request:', bookingData);
-        alert('Booking request received! We will contact you shortly.');
+        const response = await fetch('/api/bookings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...bookingData,
+            paymentMethod: method,
+            status: 'pending',
+            paymentStatus: 'pending'
+          })
+        });
+  
+        if (!response.ok) throw new Error('Booking failed');
+        
+        const { booking } = await response.json();
+        
+        // Show success message with payment instructions
+        let instructions = '';
+        switch (method) {
+          case 'bank_transfer':
+            instructions = 'Please check your email for bank transfer details.';
+            break;
+          case 'gcash':
+            instructions = 'Please check your email for GCash payment details.';
+            break;
+          case 'cash':
+            instructions = 'Please prepare the exact amount upon check-in.';
+            break;
+        }
+        
+        alert(`Booking confirmed! ${instructions}`);
+        
+        // Reset form
+        showPayment = false;
+        firstName = '';
+        lastName = '';
+        email = '';
+        phone = '';
+        checkIn = '';
+        checkOut = '';
+        guests = 2;
+        specialRequests = '';
       } catch (error) {
         console.error('Booking error:', error);
         alert('There was an error processing your booking. Please try again.');
@@ -205,3 +287,23 @@
       </button>
     </form>
   </div>
+  
+  {#if showPayment}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Complete Booking</h2>
+          <button 
+            on:click={() => showPayment = false}
+            class="text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        </div>
+        <PaymentMethodSelect
+          amount={bookingData.totalPrice}
+          onSelect={handlePaymentMethodSelect}
+        />
+      </div>
+    </div>
+  {/if}
