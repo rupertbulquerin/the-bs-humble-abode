@@ -8,30 +8,30 @@
   let error = '';
 
   async function handlePayment() {
-    try {
-      loading = true;
-      error = '';
+    // try {
+    //   loading = true;
+    //   error = '';
 
-      const response = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, bookingData })
-      });
+    //   const response = await fetch('/api/payments', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ amount, bookingData })
+    //   });
 
-      if (!response.ok) throw new Error('Failed to initialize payment');
+    //   if (!response.ok) throw new Error('Failed to initialize payment');
       
-      const { source } = await response.json();
+    //   const { source } = await response.json();
       
-      // Redirect to GCash payment page
-      window.location.href = source.redirect.checkout_url;
+    //   // Redirect to GCash payment page
+    //   window.location.href = source.redirect.checkout_url;
       
-    } catch (err) {
-      console.error('Payment error:', err);
-      error = err.message;
-      onPaymentError(err.message);
-    } finally {
-      loading = false;
-    }
+    // } catch (err) {
+    //   console.error('Payment error:', err);
+    //   error = err.message;
+    //   onPaymentError(err.message);
+    // } finally {
+    //   loading = false;
+    // }
   }
 </script>
 
