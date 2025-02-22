@@ -19,6 +19,9 @@
     let showCalendar = false;
     let showPayment = false;
     let bookingData: any = null;
+    let isProcessing = false;
+    let showSuccessModal = false;
+    let paymentInstructions = '';
   
     $: numberOfNights = checkIn && checkOut 
       ? (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
@@ -80,6 +83,7 @@
   
     async function handlePaymentMethodSelect(method: string) {
       try {
+        isProcessing = true;
         const response = await fetch('/api/bookings', {
           method: 'POST',
           headers: {
@@ -97,36 +101,47 @@
         
         const { booking } = await response.json();
         
-        // Show success message with payment instructions
-        let instructions = '';
+        // Set payment instructions based on method
         switch (method) {
           case 'bank_transfer':
-            instructions = 'Please check your email for bank transfer details.';
+            paymentInstructions = 'Please check your email for bank transfer details.';
             break;
           case 'gcash':
-            instructions = 'Please check your email for GCash payment details.';
+            paymentInstructions = 'Please check your email for GCash payment details.';
             break;
           case 'cash':
-            instructions = 'Please prepare the exact amount upon check-in.';
+            paymentInstructions = 'Please prepare the exact amount upon check-in.';
             break;
         }
         
-        alert(`Booking confirmed! ${instructions}`);
-        
-        // Reset form
+        // Show success modal
         showPayment = false;
-        firstName = '';
-        lastName = '';
-        email = '';
-        phone = '';
-        checkIn = '';
-        checkOut = '';
-        guests = 2;
-        specialRequests = '';
+        showSuccessModal = true;
+        
+        // Remove the setTimeout and let the user close the modal manually
+        // The fields will be reset when they click the close button
+
       } catch (error) {
         console.error('Booking error:', error);
         alert('There was an error processing your booking. Please try again.');
+      } finally {
+        isProcessing = false;
       }
+    }
+  
+    function resetFields() {
+      firstName = '';
+      lastName = '';
+      email = '';
+      phone = '';
+      checkIn = '';
+      checkOut = '';
+      guests = 2;
+      specialRequests = '';
+      showPayment = false;
+      showSuccessModal = false;
+      bookingData = null;
+      isProcessing = false;
     }
   </script>
   
@@ -294,8 +309,9 @@
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-bold">Complete Booking</h2>
           <button 
-            on:click={() => showPayment = false}
+            on:click={resetFields}
             class="text-gray-500 hover:text-gray-700"
+            disabled={isProcessing}
           >
             ✕
           </button>
@@ -303,7 +319,30 @@
         <PaymentMethodSelect
           amount={bookingData.totalPrice}
           onSelect={handlePaymentMethodSelect}
+          {isProcessing}
         />
+      </div>
+    </div>
+  {/if}
+
+  {#if showSuccessModal}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <div class="text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Booking Successful!</h3>
+          <p class="text-sm text-gray-500 mb-4">{paymentInstructions}</p>
+          <button
+            on:click={resetFields}
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   {/if}

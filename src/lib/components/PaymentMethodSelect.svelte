@@ -1,6 +1,7 @@
 <script lang="ts">
   export let amount: number;
   export let onSelect: (method: string) => void;
+  export let isProcessing = false;
 
   const paymentMethods = [
     {
@@ -28,13 +29,17 @@
     {#each paymentMethods as method}
       <button
         on:click={() => onSelect(method.id)}
-        class="w-full rounded-lg border p-4 text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        disabled={isProcessing}
+        class="w-full rounded-lg border p-4 text-left hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
       >
         <div class="flex items-center justify-between">
           <div>
             <h4 class="font-medium">{method.name}</h4>
             <p class="text-sm text-gray-600">{method.description}</p>
           </div>
+          {#if isProcessing}
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-800"></div>
+          {/if}
         </div>
       </button>
     {/each}
