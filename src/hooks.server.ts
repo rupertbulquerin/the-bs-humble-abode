@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { redirect, type Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
-console.log('all env', process.env)
+
 const JWT_SECRET = process.env.JWT_SECRET;
 const PUBLIC_ROUTES = ['/admin/login'];
 

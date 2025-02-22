@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
 import { format } from 'date-fns';
 
@@ -41,7 +40,7 @@ export async function GET() {
     return new Response(icalContent, {
       headers: {
         'Content-Type': 'text/calendar; charset=utf-8',
-        'Content-Disposition': 'attachment; filename=the-bs-humble-abode-bookings.ics',
+        'Content-Disposition': 'attachment; filename=calendar.ics',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
@@ -49,6 +48,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Failed to generate calendar:', error);
-    return json({ error: 'Failed to generate calendar' }, { status: 500 });
+    return new Response('Error generating calendar', { status: 500 });
   }
 } 
