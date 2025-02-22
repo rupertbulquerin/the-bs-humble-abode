@@ -57,6 +57,31 @@
       url: '/images/img3.jpg',
       title: 'Your Home Away',
       subtitle: 'Relax in style'
+    },
+    {
+      url: '/images/img4.jpg',
+      title: 'Modern Living',
+      subtitle: 'Contemporary comfort at its finest'
+    },
+    {
+      url: '/images/img5.jpg',
+      title: 'Urban Retreat',
+      subtitle: 'Your sanctuary in the city'
+    },
+    {
+      url: '/images/img6.jpg',
+      title: 'Cozy Corner',
+      subtitle: 'Where comfort meets style'
+    },
+    {
+      url: '/images/img7.jpg',
+      title: 'City Views',
+      subtitle: 'Experience the urban landscape'
+    },
+    {
+      url: '/images/img8.jpg',
+      title: 'Perfect Stay',
+      subtitle: 'Making memories in Iloilo'
     }
   ];
 
@@ -72,10 +97,27 @@
 
   // Auto-advance banner every 5 seconds
   setInterval(nextBanner, 5000);
+
+  let scrolled = false;
+
+  function handleScroll() {
+    if (window.scrollY > 50) {
+      scrolled = true;
+    } else {
+      scrolled = false;  // Reset when scrolling back up
+    }
+  }
+
+  function scrollToContent() {
+    const mainContent = document.querySelector('main');
+    mainContent?.scrollIntoView({ behavior: 'smooth' });
+  }
 </script>
 
+<svelte:window on:scroll={handleScroll}/>
+
 <!-- Full-width banner carousel -->
-<div class="relative h-[70vh] w-full overflow-hidden bg-gray-900">
+<div class="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-gray-900">
   {#each bannerImages as banner, index}
     <div 
       class="absolute inset-0 transition-opacity duration-500"
@@ -87,7 +129,7 @@
         class="h-full w-full object-cover opacity-80"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent" />
-      <div class="absolute bottom-0 left-0 right-0 p-8 text-center text-white">
+      <div class="absolute bottom-32 left-0 right-0 p-8 text-center text-white">
         <h2 class="text-4xl font-bold">{banner.title}</h2>
         <p class="mt-2 text-xl">{banner.subtitle}</p>
       </div>
@@ -107,13 +149,28 @@
     →
   </button>
 
-  <div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
-    {#each bannerImages as _, index}
-      <button
-        class="h-2 w-2 rounded-full transition {currentBannerIndex === index ? 'bg-white' : 'bg-white/50'}"
-        on:click={() => (currentBannerIndex = index)}
-      />
-    {/each}
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2">
+    <div 
+      class="animate-bounce {scrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500 cursor-pointer"
+      on:click={scrollToContent}
+      on:keydown={(e) => e.key === 'Enter' && scrollToContent()}
+      role="button"
+      tabindex="0"
+    >
+      <svg 
+        class="h-8 w-8 text-white" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          stroke-width="2" 
+          d="M19 14l-7 7m0 0l-7-7m7 7V3"
+        />
+      </svg>
+    </div>
   </div>
 </div>
 
