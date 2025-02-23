@@ -9,7 +9,9 @@ const config = {
 
 	kit: {
 		adapter: adapter({
-			runtime: 'nodejs18.x'
+			runtime: 'nodejs18.x',
+			regions: ['sin1'],
+			edge: false // Explicitly disable edge functions
 		})
 	}
 };

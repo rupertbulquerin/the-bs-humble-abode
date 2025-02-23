@@ -2,12 +2,7 @@ import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
 // import ical from 'node-ical';
 
-export const config = {
-  runtime: 'edge',
-  regions: ['sin1'], // Singapore region for better Asia latency
-};
-
-export async function POST({ request }) {
+export async function GET() {
   try {
     const calendars = await prisma.calendar.findMany({
       where: { isActive: true }
