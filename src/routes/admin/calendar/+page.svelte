@@ -31,15 +31,34 @@
 	$: blockedDates = data.blockedDates;
 	let currentMonth = new Date();
 	let isCalendarLoading = false;
-
+    $: bookedDates = [];
 	$: displayMonths = [currentMonth, addMonths(currentMonth, 1), addMonths(currentMonth, 2)];
 	$: selectedStartDate = blockStart ? new Date(blockStart) : null;
 	$: selectedEndDate = blockEnd ? new Date(blockEnd) : null;
-	$: bookedDates = data.bookedDates.map((date) => ({
-		start: convertToManila(new Date(date.start)),
-		end: convertToManila(new Date(date.end)),
-		source: date.source
-	}));
+	$: {
+		const relevantDates = data.bookedDates.filter(date => {
+			const d = new Date(date.start);
+			return d.getMonth() === 3 && d.getDate() >= 27 && d.getDate() <= 30;
+		});
+		
+		if (relevantDates.length > 0) {
+			console.log('Raw relevant April bookedDates from server:', relevantDates);
+		}
+		
+		bookedDates = data.bookedDates.map((date) => {
+			const mapped = {
+				start: convertToManila(new Date(date.start)),
+				end: convertToManila(new Date(date.end)),
+				source: date.source
+			};
+			
+			const d = new Date(date.start);
+			if (d.getMonth() === 3 && d.getDate() >= 27 && d.getDate() <= 30) {
+				console.log('Mapped relevant April bookedDate:', mapped);
+			}
+			return mapped;
+		});
+	}
 
 	async function fetchAllBookedDates() {
 		try {
@@ -74,13 +93,45 @@
 	}
 
 	function isDateBlocked(date: Date) {
+		// Only log for April 27-30
+		const isRelevantDate = date.getMonth() === 3 && date.getDate() >= 27 && date.getDate() <= 30;
+		
+		if (isRelevantDate) {
+			console.log('Checking relevant April date:', {
+				date: date.getDate(),
+				inputDate: date.toISOString(),
+				manilaDate: convertToManila(date).toISOString()
+			});
+		}
+		
 		const manilaDate = convertToManila(date);
-		return bookedDates.some((blocked) =>
-			isWithinInterval(startOfDay(manilaDate), {
+		const isBlocked = bookedDates.some((blocked) => {
+			const result = isWithinInterval(startOfDay(manilaDate), {
 				start: new Date(blocked.start),
 				end: new Date(blocked.end)
-			})
-		);
+			});
+			
+			if (isRelevantDate) {
+				console.log('Relevant April date comparison:', {
+					date: date.getDate(),
+					manilaDate: manilaDate.toISOString(),
+					blockStart: new Date(blocked.start).toISOString(),
+					blockEnd: new Date(blocked.end).toISOString(),
+					isBlocked: result,
+					source: blocked.source
+				});
+			}
+			
+			return result;
+		});
+
+		if (isRelevantDate) {
+			console.log('Final relevant April date block result:', {
+				date: date.getDate(),
+				isBlocked
+			});
+		}
+		return isBlocked;
 	}
 
 	function getBlockSource(date: Date) {
