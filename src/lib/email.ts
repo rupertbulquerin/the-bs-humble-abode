@@ -8,13 +8,21 @@ export async function sendEmail({ to, subject, html }: {
 	html: string; 
 }) {
 	try {
-		await resend.emails.send({
+		const { data, error } = await resend.emails.send({
 			from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
+			replyTo: 'contact@thebshumbleabode.com',
 			to,
 			subject,
 			html
 		});
-		return { success: true };
+
+		if (error) {
+			console.error('Resend API error:', error);
+			return { error: error.message };
+		}
+
+		console.log('Email sent successfully:', data);
+		return { success: true, data };
 	} catch (error) {
 		console.error('Failed to send email:', error);
 		return { error: 'Failed to send email' };
@@ -78,7 +86,8 @@ export async function sendBookingEmail(booking: any) {
   `;
 
 	await resend.emails.send({
-		from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
+		from: 'The B\'s Humble Abode <noreply@thebshumbleabode.com>',
+		replyTo: 'contact@thebshumbleabode.com',
 		to: booking.email,
 		subject: 'Booking Confirmation - Payment Required',
 		html
