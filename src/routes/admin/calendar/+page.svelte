@@ -74,8 +74,9 @@
 	}
 
 	function isDateBlocked(date: Date) {
+		const manilaDate = convertToManila(date);
 		return bookedDates.some((blocked) =>
-			isWithinInterval(startOfDay(date), {
+			isWithinInterval(startOfDay(manilaDate), {
 				start: new Date(blocked.start),
 				end: new Date(blocked.end)
 			})
@@ -83,8 +84,9 @@
 	}
 
 	function getBlockSource(date: Date) {
+		const manilaDate = convertToManila(date);
 		const block = bookedDates.find((blocked) =>
-			isWithinInterval(startOfDay(date), {
+			isWithinInterval(startOfDay(manilaDate), {
 				start: new Date(blocked.start),
 				end: new Date(blocked.end)
 			})
