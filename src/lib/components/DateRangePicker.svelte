@@ -11,6 +11,7 @@
 		isBefore,
 		startOfDay
 	} from 'date-fns';
+	import { convertToManila } from '$lib/dates';
 	import { onMount } from 'svelte';
 
 	export let checkIn: string;
@@ -34,8 +35,8 @@
 			const response = await fetch('/api/calendar');
 			const data = await response.json();
 			blockedDates = data.bookedDates.map((date: any) => ({
-				start: new Date(date.start),
-				end: new Date(date.end)
+				start: convertToManila(new Date(date.start)),
+				end: convertToManila(new Date(date.end))
 			}));
 		} catch (error) {
 			console.error('Failed to fetch blocked dates:', error);
@@ -43,8 +44,9 @@
 	}
 
 	function isDateBlocked(date: Date) {
+		const manilaDate = convertToManila(date);
 		return blockedDates.some((blocked) =>
-			isWithinInterval(startOfDay(date), {
+			isWithinInterval(startOfDay(manilaDate), {
 				start: new Date(blocked.start),
 				end: new Date(blocked.end)
 			})
@@ -52,12 +54,13 @@
 	}
 
 	function isDateRangeBlocked(start: Date, end: Date) {
+		const manilaStart = convertToManila(start);
+		const manilaEnd = convertToManila(end);
 		return blockedDates.some((blocked) => {
-			// Check if any part of the selected range overlaps with blocked dates
 			return (
-				(start <= blocked.end && end >= blocked.start) ||
-				isWithinInterval(blocked.start, { start, end }) ||
-				isWithinInterval(blocked.end, { start, end })
+				(manilaStart <= blocked.end && manilaEnd >= blocked.start) ||
+				isWithinInterval(blocked.start, { start: manilaStart, end: manilaEnd }) ||
+				isWithinInterval(blocked.end, { start: manilaStart, end: manilaEnd })
 			);
 		});
 	}
