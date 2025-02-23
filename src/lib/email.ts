@@ -85,11 +85,17 @@ export async function sendBookingEmail(booking: any) {
     </div>
   `;
 
-	await resend.emails.send({
-		from: 'The B\'s Humble Abode <noreply@thebshumbleabode.com>',
+	const { data, error } = await resend.emails.send({
+		from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
 		replyTo: 'contact@thebshumbleabode.com',
 		to: booking.email,
 		subject: 'Booking Confirmation - Payment Required',
 		html
 	});
+
+	if (error) {
+		console.error('Resend API error:', error);
+		return { error: error.message };
+	}
+	return { success: true, data };
 }

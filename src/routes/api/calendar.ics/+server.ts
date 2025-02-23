@@ -1,26 +1,21 @@
 import { prisma } from '$lib/prisma';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 
 export async function GET() {
   try {
-    // Fetch confirmed bookings
-    const bookings = await prisma.booking.findMany({
-      where: {
-        checkOut: {
-          gte: new Date()
-        },
-        status: 'confirmed'
-      }
-    });
-
-    // Fetch blocked dates
-    const blockedDates = await prisma.blockedDate.findMany({
-      where: {
-        endDate: {
-          gte: new Date()
+    const [bookings, blockedDates] = await Promise.all([
+      prisma.booking.findMany({
+        where: {
+          checkOut: { gte: new Date() },
+          status: 'confirmed'
         }
-      }
-    });
+      }),
+      prisma.blockedDate.findMany({
+        where: {
+          endDate: { gte: new Date() }
+        }
+      })
+    ]);
 
     const icalContent = [
       'BEGIN:VCALENDAR',
@@ -34,7 +29,7 @@ export async function GET() {
         `UID:booking-${booking.id}@the-bs-humble-abode`,
         `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
         `DTSTART;VALUE=DATE:${format(new Date(booking.checkIn), 'yyyyMMdd')}`,
-        `DTEND;VALUE=DATE:${format(new Date(booking.checkOut), 'yyyyMMdd')}`,
+        `DTEND;VALUE=DATE:${format(addDays(new Date(booking.checkOut), 1), 'yyyyMMdd')}`,
         'SUMMARY:Unavailable - Booking',
         'STATUS:CONFIRMED',
         'END:VEVENT'
@@ -45,7 +40,7 @@ export async function GET() {
         `UID:blocked-${blocked.id}@the-bs-humble-abode`,
         `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
         `DTSTART;VALUE=DATE:${format(new Date(blocked.startDate), 'yyyyMMdd')}`,
-        `DTEND;VALUE=DATE:${format(new Date(blocked.endDate), 'yyyyMMdd')}`,
+        `DTEND;VALUE=DATE:${format(addDays(new Date(blocked.endDate), 1), 'yyyyMMdd')}`,
         `SUMMARY:Unavailable - ${blocked.reason}`,
         'STATUS:CONFIRMED',
         'END:VEVENT'
