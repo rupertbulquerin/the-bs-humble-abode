@@ -2,23 +2,7 @@ import { json } from '@sveltejs/kit';
 // import ical from 'node-ical';
 import { prisma } from '$lib/prisma';
 import { startOfDay, endOfDay, subDays } from 'date-fns';
-
-async function parseICalDate(date: string, hasTime = false) {
-	const year = parseInt(date.slice(0, 4));
-	const month = parseInt(date.slice(4, 6)) - 1;
-	const day = parseInt(date.slice(6, 8));
-	
-	if (hasTime) {
-		// For timestamps with 'Z' suffix (UTC)
-		const hour = parseInt(date.slice(9, 11));
-		const minute = parseInt(date.slice(11, 13));
-		const second = parseInt(date.slice(13, 15));
-		return new Date(Date.UTC(year, month, day, hour, minute, second));
-	}
-	
-	// For DATE values, always use UTC midnight
-	return new Date(Date.UTC(year, month, day));
-}
+import { parseICalDate, convertToManila, convertFromManila } from '$lib/dates';
 
 async function fetchAndParseCalendar(url: string) {
 	try {
@@ -34,7 +18,6 @@ async function fetchAndParseCalendar(url: string) {
 				currentEvent = {};
 			} else if (line === 'END:VEVENT' && currentEvent) {
 				if (currentEvent.startDate && currentEvent.endDate) {
-					// Subtract one day from endDate since iCal DTEND is exclusive
 					currentEvent.endDate = subDays(currentEvent.endDate, 1);
 					events.push(currentEvent);
 				}
@@ -42,11 +25,11 @@ async function fetchAndParseCalendar(url: string) {
 			} else if (currentEvent && line.includes(':')) {
 				const [key, value] = line.split(':');
 				if (key === 'DTSTAMP' || key.startsWith('DTSTAMP;')) {
-					currentEvent.timestamp = await parseICalDate(value, true);
+					currentEvent.timestamp = parseICalDate(value, true);
 				} else if (key === 'DTSTART' || key.startsWith('DTSTART;')) {
-					currentEvent.startDate = await parseICalDate(value);
+					currentEvent.startDate = parseICalDate(value);
 				} else if (key === 'DTEND' || key.startsWith('DTEND;')) {
-					currentEvent.endDate = await parseICalDate(value);
+					currentEvent.endDate = parseICalDate(value);
 				}
 			}
 		}
@@ -70,7 +53,7 @@ export async function GET() {
 			prisma.blockedDate.findMany({
 				where: {
 					endDate: {
-						gte: new Date()
+						gte: convertFromManila(new Date())
 					}
 				}
 			})
@@ -90,8 +73,8 @@ export async function GET() {
 					});
 					if (event.startDate && event.endDate) {
 						bookedDates.push({
-							start: startOfDay(new Date(event.startDate.toISOString())),
-							end: endOfDay(new Date(event.endDate.toISOString())),
+							start: startOfDay(convertToManila(event.startDate)),
+							end: endOfDay(convertToManila(event.endDate)),
 							source: `${calendar.name} - External Booking`
 						});
 					}
@@ -101,16 +84,8 @@ export async function GET() {
 
 		// Add blocked dates to bookedDates array
 		blockedDates.forEach((blocked) => {
-			const startDate = new Date(Date.UTC(
-				blocked.startDate.getFullYear(),
-				blocked.startDate.getMonth(),
-				blocked.startDate.getDate()
-			));
-			const endDate = new Date(Date.UTC(
-				blocked.endDate.getFullYear(),
-				blocked.endDate.getMonth(),
-				blocked.endDate.getDate()
-			));
+			const startDate = convertToManila(new Date(blocked.startDate));
+			const endDate = convertToManila(new Date(blocked.endDate));
 			
 			bookedDates.push({
 				start: startOfDay(startDate),
