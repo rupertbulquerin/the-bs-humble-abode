@@ -1,9 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+import { signToken } from '$lib/auth';
 
 export async function POST({ request, cookies }) {
   try {
@@ -15,7 +13,7 @@ export async function POST({ request, cookies }) {
     const validPassword = await bcrypt.compare(password, admin.password);
     if (!validPassword) throw new Error('Invalid credentials');
 
-    const token = jwt.sign({ adminId: admin.id }, JWT_SECRET, { expiresIn: '24h' });
+    const token = await signToken({ adminId: admin.id });
     
     cookies.set('adminToken', token, {
       path: '/',

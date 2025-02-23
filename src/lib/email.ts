@@ -1,30 +1,25 @@
-import nodemailer from 'nodemailer';
-import { SMTP_USER, SMTP_PASS } from '$env/static/private';
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-	host: 'smtp.titan.email',
-	port: 465, // Changed from 587 to 465
-	secure: true, // Changed to true for SSL
-	auth: {
-		user: SMTP_USER,
-		pass: SMTP_PASS
-	},
-	tls: {
-		rejectUnauthorized: false // Added this for testing
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function sendEmail({ to, subject, html }: { 
+	to: string; 
+	subject: string; 
+	html: string; 
+}) {
+	try {
+		await resend.emails.send({
+			from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
+			to,
+			subject,
+			html
+		});
+		return { success: true };
+	} catch (error) {
+		console.error('Failed to send email:', error);
+		return { error: 'Failed to send email' };
 	}
-});
-
-// Add this after creating the transporter
-transporter.verify(function(error, success) {
-	if (error) {
-		console.log('SMTP connection error:', error);
-	} else {
-		console.log('SMTP server is ready to take our messages');
-	}
-});
-
-// Add this export at the top level, after creating the transporter
-export { transporter };
+}
 
 function getPaymentInstructions(method: string) {
 	switch (method) {
@@ -82,8 +77,8 @@ export async function sendBookingEmail(booking: any) {
     </div>
   `;
 
-	await transporter.sendMail({
-		from: '"The B\'s Humble Abode" <contact@thebshumbleabode.com>',
+	await resend.emails.send({
+		from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
 		to: booking.email,
 		subject: 'Booking Confirmation - Payment Required',
 		html

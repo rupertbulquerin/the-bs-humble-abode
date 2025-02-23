@@ -1,14 +1,12 @@
 import { json } from '@sveltejs/kit';
-import { transporter } from '$lib/email';
+import { sendEmail } from '$lib/email';
 
 export async function POST({ request }) {
   try {
     const { name, email, message } = await request.json();
 
     // Send email notification to admin
-    await transporter.sendMail({
-      from: '"The B\'s Humble Abode" <contact@thebshumbleabode.com>',
-      replyTo: email,
+    await sendEmail({
       to: 'contact@thebshumbleabode.com',
       subject: `New Contact Message from ${name}`,
       html: `
@@ -26,8 +24,7 @@ export async function POST({ request }) {
     });
 
     // Send confirmation email to user
-    await transporter.sendMail({
-      from: '"The B\'s Humble Abode" <contact@thebshumbleabode.com>',
+    await sendEmail({
       to: email,
       subject: 'Thank you for contacting us',
       html: `
@@ -52,7 +49,7 @@ export async function POST({ request }) {
 
     return json({ success: true });
   } catch (error) {
-    console.error('Failed to send contact email:', error);
-    return json({ error: 'Failed to send message' }, { status: 500 });
+    console.error('Failed to send contact emails:', error);
+    return json({ error: 'Failed to send messages' }, { status: 500 });
   }
 } 

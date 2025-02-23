@@ -1,17 +1,12 @@
 import 'dotenv/config';
 import { redirect, type Handle } from '@sveltejs/kit';
-import jwt from 'jsonwebtoken';
+import { verifyToken } from '$lib/auth';
 import { prisma } from '$lib/prisma';
 // import ical from 'node-ical';
 import { startOfDay } from 'date-fns';
 
-const JWT_SECRET = process.env.JWT_SECRET;
 const PUBLIC_ROUTES = ['/admin/login'];
 const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET must be set in environment variables');
-}
 
 let syncInterval: NodeJS.Timeout;
 let isSyncing = false;
@@ -61,7 +56,6 @@ process.on('SIGTERM', cleanup);
 process.on('SIGINT', cleanup);
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // Check if it's an admin route
   if (event.url.pathname.startsWith('/admin')) {
     const adminToken = event.cookies.get('adminToken');
     const isPublicRoute = PUBLIC_ROUTES.includes(event.url.pathname);
@@ -75,13 +69,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
 
     if (adminToken && !isPublicRoute) {
-      try {
-        const decoded = jwt.verify(adminToken, JWT_SECRET);
-        event.locals.adminId = decoded.adminId;
-      } catch (error) {
+      const payload = await verifyToken(adminToken);
+      if (!payload) {
         event.cookies.delete('adminToken', { path: '/' });
         throw redirect(303, '/admin/login');
       }
+      event.locals.adminId = payload.adminId as string;
     }
   }
 
