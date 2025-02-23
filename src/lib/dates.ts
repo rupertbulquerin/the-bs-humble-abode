@@ -6,21 +6,30 @@ const TIMEZONE = 'Asia/Manila';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 export function convertToManila(date: Date): Date {
-  const converted = toZonedTime(date, TIMEZONE);
-  // If in production, subtract one day to compensate for timezone difference
-  return IS_PRODUCTION ? subDays(converted, 1) : converted;
+  if (!date) return date;
+  console.log('is production', IS_PRODUCTION);
+  // In production, adjust the date if it's a date-only value (midnight UTC)
+  if (IS_PRODUCTION && date.getUTCHours() === 0 && date.getUTCMinutes() === 0) {
+    return addDays(date, 1);
+  }
+  
+  return toZonedTime(date, TIMEZONE);
 }
 
 export function convertFromManila(date: Date): Date {
-  // Create a date string in Manila timezone, then parse as UTC
+  if (!date) return date;
   const dateStr = formatInTimeZone(date, TIMEZONE, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
   const converted = new Date(dateStr);
-  // If in production, add one day to compensate for timezone difference
-  return IS_PRODUCTION ? addDays(converted, 1) : converted;
+  
+  // In production, adjust the date if it's a date-only value
+  if (IS_PRODUCTION && converted.getUTCHours() === 0 && converted.getUTCMinutes() === 0) {
+    return subDays(converted, 1);
+  }
+  
+  return converted;
 }
 
 export function createManilaDate(year: number, month: number, day: number): Date {
-  // Create date in Manila timezone
   const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T00:00:00.000Z`;
   const utcDate = new Date(dateStr);
   return convertFromManila(utcDate);
@@ -38,5 +47,6 @@ export function parseICalDate(date: string, hasTime = false): Date {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
   }
   
-  return createManilaDate(year, month, day);
+  // For date-only values, create a UTC midnight date
+  return new Date(Date.UTC(year, month, day));
 } 
