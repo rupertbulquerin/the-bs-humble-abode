@@ -76,12 +76,12 @@ export async function GET() {
 
 		// Add blocked dates to bookedDates array
 		blockedDates.forEach((blocked) => {
-			const startDate = convertToManila(new Date(blocked.startDate));
-			const endDate = convertToManila(new Date(blocked.endDate));
+			const startDate = new Date(blocked.startDate);
+			const endDate = new Date(blocked.endDate);
 			
 			bookedDates.push({
-				start: startOfDay(startDate),
-				end: endOfDay(subDays(endDate, 1)),
+				start: startOfDay(convertToManila(startDate)),
+				end: endOfDay(convertToManila(endDate)),
 				source: 'Manual Block: ' + blocked.reason
 			});
 		});
