@@ -82,7 +82,7 @@ export async function GET() {
 		blockedDates.forEach((blocked) => {
 			bookedDates.push({
 				start: startOfDay(new Date(blocked.startDate)),
-				end: endOfDay(new Date(blocked.endDate)),
+				end: endOfDay(subDays(new Date(blocked.endDate), 1)),
 				source: 'Manual Block: ' + blocked.reason
 			});
 		});
