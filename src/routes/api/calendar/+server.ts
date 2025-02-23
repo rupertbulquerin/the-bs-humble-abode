@@ -43,9 +43,6 @@ async function fetchAndParseCalendar(url: string) {
 
 export async function GET() {
 	try {
-		console.log('Server timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
-		console.log('Current server time:', new Date().toISOString());
-
 		const [calendars, blockedDates] = await Promise.all([
 			prisma.calendar.findMany({
 				where: { isActive: true }
@@ -66,11 +63,6 @@ export async function GET() {
 			if (calendar.syncUrl) {
 				const events = await fetchAndParseCalendar(calendar.syncUrl);
 				events.forEach(event => {
-					console.log('Parsed event:', {
-						timestamp: event.timestamp?.toISOString(),
-						start: event.startDate.toISOString(),
-						end: event.endDate.toISOString()
-					});
 					if (event.startDate && event.endDate) {
 						bookedDates.push({
 							start: startOfDay(convertToManila(event.startDate)),

@@ -12,6 +12,7 @@
 		isWithinInterval,
 		startOfDay
 	} from 'date-fns';
+	import { convertToManila } from '$lib/dates';
 
 	let activeTab = 'view';
 	$: calendars = data.calendars;
@@ -35,8 +36,8 @@
 	$: selectedStartDate = blockStart ? new Date(blockStart) : null;
 	$: selectedEndDate = blockEnd ? new Date(blockEnd) : null;
 	$: bookedDates = data.bookedDates.map((date) => ({
-		start: new Date(date.start),
-		end: new Date(date.end),
+		start: convertToManila(new Date(date.start)),
+		end: convertToManila(new Date(date.end)),
 		source: date.source
 	}));
 
@@ -45,8 +46,8 @@
 			const response = await fetch('/api/calendar');
 			const data = await response.json();
 			bookedDates = data.bookedDates.map((date) => ({
-				start: new Date(date.start),
-				end: new Date(date.end),
+				start: convertToManila(new Date(date.start)),
+				end: convertToManila(new Date(date.end)),
 				source: date.source
 			}));
 		} catch (error) {
@@ -73,8 +74,9 @@
 	}
 
 	function isDateBlocked(date: Date) {
+		const manilaDate = convertToManila(date);
 		return bookedDates.some((blocked) =>
-			isWithinInterval(startOfDay(date), {
+			isWithinInterval(startOfDay(manilaDate), {
 				start: new Date(blocked.start),
 				end: new Date(blocked.end)
 			})
@@ -82,8 +84,9 @@
 	}
 
 	function getBlockSource(date: Date) {
+		const manilaDate = convertToManila(date);
 		const block = bookedDates.find((blocked) =>
-			isWithinInterval(startOfDay(date), {
+			isWithinInterval(startOfDay(manilaDate), {
 				start: new Date(blocked.start),
 				end: new Date(blocked.end)
 			})
