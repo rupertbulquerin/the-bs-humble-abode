@@ -16,8 +16,8 @@ async function parseICalDate(date: string, hasTime = false) {
 		return new Date(Date.UTC(year, month, day, hour, minute, second));
 	}
 	
-	// For DATE values (local date)
-	return new Date(year, month, day);
+	// For DATE values, always use UTC midnight
+	return new Date(Date.UTC(year, month, day));
 }
 
 async function fetchAndParseCalendar(url: string) {
@@ -90,8 +90,8 @@ export async function GET() {
 					});
 					if (event.startDate && event.endDate) {
 						bookedDates.push({
-							start: startOfDay(event.startDate),
-							end: endOfDay(event.endDate),
+							start: startOfDay(new Date(event.startDate.toISOString())),
+							end: endOfDay(new Date(event.endDate.toISOString())),
 							source: `${calendar.name} - External Booking`
 						});
 					}
@@ -101,9 +101,20 @@ export async function GET() {
 
 		// Add blocked dates to bookedDates array
 		blockedDates.forEach((blocked) => {
+			const startDate = new Date(Date.UTC(
+				blocked.startDate.getFullYear(),
+				blocked.startDate.getMonth(),
+				blocked.startDate.getDate()
+			));
+			const endDate = new Date(Date.UTC(
+				blocked.endDate.getFullYear(),
+				blocked.endDate.getMonth(),
+				blocked.endDate.getDate()
+			));
+			
 			bookedDates.push({
-				start: startOfDay(new Date(blocked.startDate + 'T00:00:00Z')),
-				end: endOfDay(subDays(new Date(blocked.endDate + 'T00:00:00Z'), 1)),
+				start: startOfDay(startDate),
+				end: endOfDay(subDays(endDate, 1)),
 				source: 'Manual Block: ' + blocked.reason
 			});
 		});
