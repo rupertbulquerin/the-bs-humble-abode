@@ -7,7 +7,8 @@ async function parseICalDate(date: string) {
 	const year = parseInt(date.slice(0, 4));
 	const month = parseInt(date.slice(4, 6)) - 1;
 	const day = parseInt(date.slice(6, 8));
-	return new Date(year, month, day);
+	// Create date in UTC to avoid timezone issues
+	return new Date(Date.UTC(year, month, day));
 }
 
 async function fetchAndParseCalendar(url: string) {
@@ -81,8 +82,8 @@ export async function GET() {
 		// Add blocked dates to bookedDates array
 		blockedDates.forEach((blocked) => {
 			bookedDates.push({
-				start: startOfDay(new Date(blocked.startDate)),
-				end: endOfDay(subDays(new Date(blocked.endDate), 1)),
+				start: startOfDay(new Date(blocked.startDate + 'T00:00:00Z')),
+				end: endOfDay(subDays(new Date(blocked.endDate + 'T00:00:00Z'), 1)),
 				source: 'Manual Block: ' + blocked.reason
 			});
 		});
