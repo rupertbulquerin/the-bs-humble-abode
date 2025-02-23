@@ -1,3 +1,4 @@
+import { convertToManila } from '$lib/dates';
 import { prisma } from '$lib/prisma';
 import { startOfDay, endOfDay, subDays } from 'date-fns';
 
@@ -93,8 +94,8 @@ export async function load() {
     // Add blocked dates to bookedDates
     blockedDates.forEach((blocked) => {
       bookedDates.push({
-        start: startOfDay(new Date(blocked.startDate)),
-        end: endOfDay(subDays(new Date(blocked.endDate), 1)),
+        start: startOfDay(convertToManila(new Date(blocked.startDate))),
+        end: endOfDay(subDays(convertToManila(new Date(blocked.endDate)), 1)),
         source: 'Manual Block: ' + blocked.reason
       });
     });

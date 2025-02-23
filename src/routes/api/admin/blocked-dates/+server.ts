@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
+import { convertFromManila } from '$lib/dates';
 
 export async function GET() {
   try {
@@ -17,8 +18,8 @@ export async function POST({ request }) {
     const data = await request.json();
     const blockedDate = await prisma.blockedDate.create({
       data: {
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
+        startDate: convertFromManila(new Date(data.startDate)),
+        endDate: convertFromManila(new Date(data.endDate)),
         reason: data.reason
       }
     });
