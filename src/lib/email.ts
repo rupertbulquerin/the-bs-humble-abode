@@ -2,17 +2,34 @@ import nodemailer from 'nodemailer';
 import { SMTP_USER, SMTP_PASS } from '$env/static/private';
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: SMTP_USER,
-    pass: SMTP_PASS
-  }
+	host: 'smtp.titan.email',
+	port: 465, // Changed from 587 to 465
+	secure: true, // Changed to true for SSL
+	auth: {
+		user: SMTP_USER,
+		pass: SMTP_PASS
+	},
+	tls: {
+		rejectUnauthorized: false // Added this for testing
+	}
 });
 
+// Add this after creating the transporter
+transporter.verify(function(error, success) {
+	if (error) {
+		console.log('SMTP connection error:', error);
+	} else {
+		console.log('SMTP server is ready to take our messages');
+	}
+});
+
+// Add this export at the top level, after creating the transporter
+export { transporter };
+
 function getPaymentInstructions(method: string) {
-  switch (method) {
-    case 'bank_transfer':
-      return `
+	switch (method) {
+		case 'bank_transfer':
+			return `
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
           <h3 style="margin-top: 0; color: #2d3748;">BPI Bank Transfer Details</h3>
           <p style="margin-bottom: 5px;"><strong>Account Name:</strong> Andrea Audine Jandogan</p>
@@ -20,8 +37,8 @@ function getPaymentInstructions(method: string) {
           <p style="color: #4a5568; font-size: 14px;">Please send the screenshot of your payment to this email.</p>
         </div>
       `;
-    case 'gcash':
-      return `
+		case 'gcash':
+			return `
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
           <h3 style="margin-top: 0; color: #2d3748;">GCash Payment Details</h3>
           <p style="margin-bottom: 5px;"><strong>Account Name:</strong> AN***A AU***E B.</p>
@@ -29,15 +46,15 @@ function getPaymentInstructions(method: string) {
           <p style="color: #4a5568; font-size: 14px;">Please send the screenshot of your payment to this email.</p>
         </div>
       `;
-    default:
-      return '';
-  }
+		default:
+			return '';
+	}
 }
 
 export async function sendBookingEmail(booking: any) {
-  const paymentInstructions = getPaymentInstructions(booking.paymentMethod);
-  
-  const html = `
+	const paymentInstructions = getPaymentInstructions(booking.paymentMethod);
+
+	const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #1a1a1a;">Your Booking is Pending Payment</h2>
       
@@ -65,10 +82,10 @@ export async function sendBookingEmail(booking: any) {
     </div>
   `;
 
-  await transporter.sendMail({
-    from: '"The B\'s Humble Abode" <rupert2133@gmail.com>',
-    to: booking.email,
-    subject: 'Booking Confirmation - Payment Required',
-    html
-  });
-} 
+	await transporter.sendMail({
+		from: '"The B\'s Humble Abode" <contact@thebshumbleabode.com>',
+		to: booking.email,
+		subject: 'Booking Confirmation - Payment Required',
+		html
+	});
+}

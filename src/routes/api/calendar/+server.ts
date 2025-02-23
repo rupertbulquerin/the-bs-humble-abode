@@ -1,44 +1,55 @@
 import { json } from '@sveltejs/kit';
 import ical from 'node-ical';
-
-let cachedEvents: any = null;
-let lastFetch = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+import { prisma } from '$lib/prisma';
+import { startOfDay, endOfDay } from 'date-fns';
 
 export async function GET() {
 	try {
-		// Check cache
-		if (cachedEvents && (Date.now() - lastFetch) < CACHE_DURATION) {
-			return json({ bookedDates: cachedEvents });
-		}
+		// Fetch all active calendars
+		const calendars = await prisma.calendar.findMany({
+			where: { isActive: true }
+		});
 
-		const AIRBNB_ICAL_URL =
-			'https://www.airbnb.com/calendar/ical/1347709887318066348.ics?s=6ca66a6960baa08116f1c25feb37b607';
-
-		const events = await ical.fromURL(AIRBNB_ICAL_URL);
 		const bookedDates = [];
 
-		for (let event of Object.values(events)) {
-			if (event.type === 'VEVENT') {
-				bookedDates.push({
-					start: event.start,
-					end: event.end,
-					source: 'airbnb'
-				});
+		// Fetch events from all calendars
+		for (const calendar of calendars) {
+			try {
+				const events = await ical.fromURL(calendar.syncUrl);
+				for (let event of Object.values(events)) {
+					if (event.type === 'VEVENT') {
+						bookedDates.push({
+							start: startOfDay(new Date(event.start)),
+							end: endOfDay(new Date(event.end)),
+							source: calendar.name
+						});
+					}
+				}
+			} catch (error) {
+				console.error(`Failed to fetch calendar ${calendar.name}:`, error);
 			}
 		}
 
-		// Update cache
-		cachedEvents = bookedDates;
-		lastFetch = Date.now();
+		// Fetch manually blocked dates
+		const blockedDates = await prisma.blockedDate.findMany({
+			where: {
+				endDate: {
+					gte: new Date()
+				}
+			}
+		});
 
+		// Add blocked dates to bookedDates array with normalized dates
+		blockedDates.forEach((blocked) => {
+			bookedDates.push({
+				start: startOfDay(new Date(blocked.startDate)),
+				end: endOfDay(new Date(blocked.endDate)),
+				source: 'Manual Block: ' + blocked.reason
+			});
+		});
 		return json({ bookedDates });
 	} catch (error) {
-		console.error('Failed to fetch Airbnb calendar:', error);
-		// Return cached data if available
-		if (cachedEvents) {
-			return json({ bookedDates: cachedEvents, fromCache: true });
-		}
+		console.error('Failed to fetch calendars:', error);
 		return json({ error: 'Failed to fetch calendar data' }, { status: 500 });
 	}
 }

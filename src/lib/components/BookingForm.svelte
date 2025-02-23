@@ -22,6 +22,7 @@
     let isProcessing = false;
     let showSuccessModal = false;
     let paymentInstructions = '';
+    let pollInterval: NodeJS.Timeout;
   
     $: numberOfNights = checkIn && checkOut 
       ? (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
@@ -61,6 +62,12 @@
   
     onMount(() => {
       initializeDates();
+      // Poll every minute for updates
+      pollInterval = setInterval(initializeDates, 60000);
+      
+      return () => {
+        if (pollInterval) clearInterval(pollInterval);
+      };
     });
   
     async function handleSubmit() {

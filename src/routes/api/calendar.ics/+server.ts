@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 
 export async function GET() {
   try {
+    // Fetch confirmed bookings
     const bookings = await prisma.booking.findMany({
       where: {
         checkOut: {
@@ -12,19 +13,40 @@ export async function GET() {
       }
     });
 
+    // Fetch blocked dates
+    const blockedDates = await prisma.blockedDate.findMany({
+      where: {
+        endDate: {
+          gte: new Date()
+        }
+      }
+    });
+
     const icalContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//The Bs Humble Abode//NONSGML v1.0//EN',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
+      // Add bookings
       ...bookings.map(booking => [
         'BEGIN:VEVENT',
-        `UID:${booking.id}@the-bs-humble-abode`,
+        `UID:booking-${booking.id}@the-bs-humble-abode`,
         `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
         `DTSTART;VALUE=DATE:${format(new Date(booking.checkIn), 'yyyyMMdd')}`,
         `DTEND;VALUE=DATE:${format(new Date(booking.checkOut), 'yyyyMMdd')}`,
-        'SUMMARY:Unavailable',
+        'SUMMARY:Unavailable - Booking',
+        'STATUS:CONFIRMED',
+        'END:VEVENT'
+      ]).flat(),
+      // Add blocked dates
+      ...blockedDates.map(blocked => [
+        'BEGIN:VEVENT',
+        `UID:blocked-${blocked.id}@the-bs-humble-abode`,
+        `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
+        `DTSTART;VALUE=DATE:${format(new Date(blocked.startDate), 'yyyyMMdd')}`,
+        `DTEND;VALUE=DATE:${format(new Date(blocked.endDate), 'yyyyMMdd')}`,
+        `SUMMARY:Unavailable - ${blocked.reason}`,
         'STATUS:CONFIRMED',
         'END:VEVENT'
       ]).flat(),
