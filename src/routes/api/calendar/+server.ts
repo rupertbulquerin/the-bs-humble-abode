@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import ical from 'node-ical';
+// import ical from 'node-ical';
 import { prisma } from '$lib/prisma';
 import { startOfDay, endOfDay } from 'date-fns';
 
@@ -13,22 +13,22 @@ export async function GET() {
 		const bookedDates = [];
 
 		// Fetch events from all calendars
-		for (const calendar of calendars) {
-			try {
-				const events = await ical.fromURL(calendar.syncUrl);
-				for (let event of Object.values(events)) {
-					if (event.type === 'VEVENT') {
-						bookedDates.push({
-							start: startOfDay(new Date(event.start)),
-							end: endOfDay(new Date(event.end)),
-							source: calendar.name
-						});
-					}
-				}
-			} catch (error) {
-				console.error(`Failed to fetch calendar ${calendar.name}:`, error);
-			}
-		}
+		// for (const calendar of calendars) {
+		// 	try {
+		// 		const events = await ical.fromURL(calendar.syncUrl);
+		// 		for (let event of Object.values(events)) {
+		// 			if (event.type === 'VEVENT') {
+		// 				bookedDates.push({
+		// 					start: startOfDay(new Date(event.start)),
+		// 					end: endOfDay(new Date(event.end)),
+		// 					source: calendar.name
+		// 				});
+		// 			}
+		// 		}
+		// 	} catch (error) {
+		// 		console.error(`Failed to fetch calendar ${calendar.name}:`, error);
+		// 	}
+		// }
 
 		// Fetch manually blocked dates
 		const blockedDates = await prisma.blockedDate.findMany({

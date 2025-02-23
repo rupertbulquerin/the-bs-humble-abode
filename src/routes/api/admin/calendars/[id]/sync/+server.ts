@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
-import ical from 'node-ical';
+// import ical from 'node-ical';
 
 export async function POST({ params }) {
   try {
@@ -13,7 +13,7 @@ export async function POST({ params }) {
     }
 
     // Test the iCal URL by fetching events
-    await ical.fromURL(calendar.syncUrl);
+    // await ical.fromURL(calendar.syncUrl);
 
     // Update last sync time
     await prisma.calendar.update({

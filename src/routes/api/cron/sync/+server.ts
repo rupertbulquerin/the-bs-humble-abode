@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
-import ical from 'node-ical';
+// import ical from 'node-ical';
 
 export const config = {
   runtime: 'edge',
@@ -16,7 +16,7 @@ export async function POST({ request }) {
     const results = [];
     for (const calendar of calendars) {
       try {
-        await ical.fromURL(calendar.syncUrl);
+        // await ical.fromURL(calendar.syncUrl);
         await prisma.calendar.update({
           where: { id: calendar.id },
           data: { lastSync: new Date() }

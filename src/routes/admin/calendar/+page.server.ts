@@ -1,6 +1,6 @@
 import { prisma } from '$lib/prisma';
 import { startOfDay, endOfDay } from 'date-fns';
-import ical from 'node-ical';
+// import ical from 'node-ical';
 
 export async function load() {
   try {
@@ -16,22 +16,22 @@ export async function load() {
 
     // Fetch events from active calendars
     const bookedDates = [];
-    for (const calendar of activeCalendars) {
-      try {
-        const events = await ical.fromURL(calendar.syncUrl);
-        for (let event of Object.values(events)) {
-          if (event.type === 'VEVENT') {
-            bookedDates.push({
-              start: startOfDay(new Date(event.start)),
-              end: endOfDay(new Date(event.end)),
-              source: calendar.name
-            });
-          }
-        }
-      } catch (error) {
-        console.error(`Failed to fetch calendar ${calendar.name}:`, error);
-      }
-    }
+    // for (const calendar of activeCalendars) {
+    //   try {
+    //     const events = await ical.fromURL(calendar.syncUrl);
+    //     for (let event of Object.values(events)) {
+    //       if (event.type === 'VEVENT') {
+    //         bookedDates.push({
+    //           start: startOfDay(new Date(event.start)),
+    //           end: endOfDay(new Date(event.end)),
+    //           source: calendar.name
+    //         });
+    //       }
+    //     }
+    //   } catch (error) {
+    //     console.error(`Failed to fetch calendar ${calendar.name}:`, error);
+    //   }
+    // }
 
     // Add blocked dates to bookedDates
     blockedDates.forEach((blocked) => {

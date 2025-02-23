@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { redirect, type Handle } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { prisma } from '$lib/prisma';
-import ical from 'node-ical';
+// import ical from 'node-ical';
 import { startOfDay } from 'date-fns';
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -29,7 +29,7 @@ async function syncCalendars() {
 
     for (const calendar of calendars) {
       try {
-        const events = await ical.fromURL(calendar.syncUrl);
+        // const events = await ical.fromURL(calendar.syncUrl);
         await prisma.calendar.update({
           where: { id: calendar.id },
           data: { lastSync: new Date() }
