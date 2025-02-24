@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { format, addDays, isWithinInterval } from 'date-fns';
+    import { format, addDays, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
     import DateRangePicker from './DateRangePicker.svelte';
     import { onMount } from 'svelte';
     import GCashPayment from './GCashPayment.svelte';
@@ -38,14 +38,17 @@
         const response = await fetch('/api/calendar');
         const data = await response.json();
         const blockedDates = data.bookedDates.map((date: any) => ({
-          start: new Date(date.start),
-          end: new Date(date.end)
+          start: convertToManila(new Date(date.start)),
+          end: convertToManila(new Date(date.end))
         }));
   
         // Find the first available date
-        let currentDate = convertToManila(new Date());  // Convert current date to Manila time
+        let currentDate = convertToManila(new Date());
         while (blockedDates.some(blocked => 
-          isWithinInterval(currentDate, { start: blocked.start, end: blocked.end })
+          isWithinInterval(startOfDay(currentDate), { 
+            start: startOfDay(blocked.start), 
+            end: endOfDay(blocked.end) 
+          })
         )) {
           currentDate = addDays(currentDate, 1);
         }
@@ -55,8 +58,7 @@
         checkOut = format(addDays(currentDate, 1), 'yyyy-MM-dd');
       } catch (error) {
         console.error('Failed to initialize dates:', error);
-        // Fallback to current date if API fails
-        const currentDate = convertToManila(new Date());  // Convert fallback date to Manila time
+        const currentDate = convertToManila(new Date());
         checkIn = format(currentDate, 'yyyy-MM-dd');
         checkOut = format(addDays(currentDate, 1), 'yyyy-MM-dd');
       }
