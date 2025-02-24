@@ -3,7 +3,9 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { verifyToken } from '$lib/auth';
 import { prisma } from '$lib/prisma';
 // import ical from 'node-ical';
-import { startOfDay } from 'date-fns';
+import { startOfDay, endOfDay } from 'date-fns';
+import { parseICalDate } from '$lib/dates';
+import { fetchAndParseCalendar } from '$lib/calendar';
 
 const PUBLIC_ROUTES = ['/admin/login'];
 const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
@@ -24,11 +26,46 @@ async function syncCalendars() {
 
     for (const calendar of calendars) {
       try {
-        // const events = await ical.fromURL(calendar.syncUrl);
+        // Fetch and parse calendar events
+        const events = await fetchAndParseCalendar(calendar.syncUrl);
+        
+        // Create or update blocked dates for each event
+        for (const event of events) {
+          if (event.startDate && event.endDate) {
+            const externalId = `${calendar.id}-${event.startDate.toISOString()}-${event.endDate.toISOString()}`;
+            
+            await prisma.blockedDate.upsert({
+              where: { externalId },
+              create: {
+                startDate: startOfDay(event.startDate),
+                endDate: endOfDay(event.endDate),
+                reason: `External Booking: ${calendar.name}`,
+                externalId,
+                source: calendar.name
+              },
+              update: {
+                startDate: startOfDay(event.startDate),
+                endDate: endOfDay(event.endDate),
+                updatedAt: new Date()
+              }
+            });
+          }
+        }
+
+        // Clean up old external blocked dates for this calendar
+        await prisma.blockedDate.deleteMany({
+          where: {
+            source: calendar.name,
+            endDate: { lt: new Date() }
+          }
+        });
+
+        // Update last sync time
         await prisma.calendar.update({
           where: { id: calendar.id },
           data: { lastSync: new Date() }
         });
+
         console.log(`Successfully synced calendar: ${calendar.name}`);
       } catch (error) {
         console.error(`Failed to sync calendar ${calendar.name}:`, error);

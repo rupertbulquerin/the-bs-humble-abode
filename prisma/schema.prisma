@@ -35,20 +35,25 @@ model Admin {
 }
 
 model Calendar {
-    id          String   @id @default(auto()) @map("_id") @db.ObjectId
-    name        String
-    syncUrl     String   // iCal URL
-    isActive    Boolean  @default(true)
-    lastSync    DateTime @default(now())
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id           String        @id @default(auto()) @map("_id") @db.ObjectId
+    name         String
+    syncUrl      String        // iCal URL
+    isActive     Boolean       @default(true)
+    lastSync     DateTime      @default(now())
+    blockedDates BlockedDate[]
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
 }
 
 model BlockedDate {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    startDate DateTime
-    endDate   DateTime
-    reason    String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id          String    @id @default(auto()) @map("_id") @db.ObjectId
+    startDate   DateTime
+    endDate     DateTime
+    reason      String
+    externalId  String?   @unique
+    source      String?   // To identify which calendar created this block
+    calendar    Calendar? @relation(fields: [calendarId], references: [id])
+    calendarId  String?   @db.ObjectId
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
 }

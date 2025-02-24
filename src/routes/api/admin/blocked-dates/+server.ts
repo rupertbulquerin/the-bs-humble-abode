@@ -4,7 +4,14 @@ import { prisma } from '$lib/prisma';
 export async function GET() {
   try {
     const blockedDates = await prisma.blockedDate.findMany({
-      orderBy: { startDate: 'asc' }
+      orderBy: { startDate: 'asc' },
+      where: {
+        // Only get manual blocks and future blocks
+        AND: [
+          { source: null }, // Manual blocks don't have a source
+          { endDate: { gte: new Date() } }
+        ]
+      }
     });
     return json({ blockedDates });
   } catch (error) {
@@ -19,7 +26,10 @@ export async function POST({ request }) {
       data: {
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
-        reason: data.reason
+        reason: data.reason,
+        // These will be null for manual blocks
+        externalId: null,
+        source: null
       }
     });
     return json({ blockedDate });
