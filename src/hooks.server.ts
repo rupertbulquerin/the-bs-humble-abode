@@ -26,41 +26,7 @@ async function syncCalendars() {
 
     for (const calendar of calendars) {
       try {
-        // Fetch and parse calendar events
-        const events = await fetchAndParseCalendar(calendar.syncUrl);
-        
-        // Create or update blocked dates for each event
-        for (const event of events) {
-          if (event.startDate && event.endDate) {
-            const externalId = `${calendar.id}-${event.startDate.toISOString()}-${event.endDate.toISOString()}`;
-            
-            await prisma.blockedDate.upsert({
-              where: { externalId },
-              create: {
-                startDate: startOfDay(event.startDate),
-                endDate: endOfDay(event.endDate),
-                reason: `External Booking: ${calendar.name}`,
-                externalId,
-                source: calendar.name
-              },
-              update: {
-                startDate: startOfDay(event.startDate),
-                endDate: endOfDay(event.endDate),
-                updatedAt: new Date()
-              }
-            });
-          }
-        }
-
-        // Clean up old external blocked dates for this calendar
-        await prisma.blockedDate.deleteMany({
-          where: {
-            source: calendar.name,
-            endDate: { lt: new Date() }
-          }
-        });
-
-        // Update last sync time
+        // Just update last sync time
         await prisma.calendar.update({
           where: { id: calendar.id },
           data: { lastSync: new Date() }
