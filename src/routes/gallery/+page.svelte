@@ -26,6 +26,11 @@
 			id: 'window-view',
 			title: 'Window View',
 			description: 'Breathtaking views from our windows'
+		},
+		{
+			id: 'others',
+			title: 'Others',
+			description: 'Other images'
 		}
 	];
 
@@ -47,23 +52,10 @@
 			'img9.jpg',
 			'img10.jpg',
 			'img11.jpg',
-			'img12.jpg',
-			'img13.jpg',
-			'img14.jpg',
-			'img15.jpg',
-			'img16.jpg'
+			'img12.jpg'
 		],
 		bedroom: ['img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg'],
-		kitchen: [
-			'img1.jpg',
-			'img2.jpg',
-			'img3.jpg',
-			'img4.jpg',
-			'img5.jpg',
-			'img6.jpg',
-			'img7.jpg',
-			'img8.jpg'
-		],
+		kitchen: ['img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg', 'img5.jpg', 'img6.jpg'],
 		bathroom: [
 			'img1.jpg',
 			'img2.jpg',
@@ -74,7 +66,15 @@
 			'img7.jpg',
 			'img8.jpg'
 		],
-		'window-view': ['img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg']
+		'window-view': ['img1.jpg', 'img2.jpg', 'img3.jpg', 'img4.jpg'],
+		others: [
+			'img1.jpg',
+			'img2.jpg',
+			'img3.jpg',
+			'img4.jpg',
+			'img5.jpg',
+			'img6.jpg'
+		]
 	};
 
 	function loadImages(category: string) {
