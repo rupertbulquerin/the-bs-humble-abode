@@ -8,10 +8,28 @@ import { parseICalDate } from '$lib/dates';
 import { fetchAndParseCalendar } from '$lib/calendar';
 
 const PUBLIC_ROUTES = ['/admin/login'];
-const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const DEFAULT_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes default
 
 let syncInterval: NodeJS.Timeout;
 let isSyncing = false;
+let currentInterval = DEFAULT_SYNC_INTERVAL;
+
+export async function getSyncInterval() {
+  const setting = await prisma.setting.findUnique({
+    where: { key: 'syncInterval' }
+  });
+  return setting ? parseInt(setting.value) * 60 * 1000 : DEFAULT_SYNC_INTERVAL;
+}
+
+export async function updateSyncSchedule() {
+  const newInterval = await getSyncInterval();
+  if (syncInterval) {
+    clearInterval(syncInterval);
+  }
+  currentInterval = newInterval;
+  syncInterval = setInterval(syncCalendars, currentInterval);
+  console.log(`Sync interval updated to ${currentInterval/60000} minutes`);
+}
 
 async function syncCalendars() {
   if (isSyncing) return;
@@ -82,11 +100,11 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   // Start sync interval if not already running
-  if (!syncInterval) {
-    syncInterval = setInterval(syncCalendars, SYNC_INTERVAL);
-    // Run initial sync
-    syncCalendars();
-  }
+  // if (!syncInterval) {
+  //   await updateSyncSchedule();
+  //   // Run initial sync
+  //   syncCalendars();
+  // }
 
   return resolve(event);
 }; 

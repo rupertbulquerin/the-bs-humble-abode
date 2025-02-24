@@ -13,6 +13,7 @@
 		startOfDay
 	} from 'date-fns';
 	import { convertToManila } from '$lib/dates';
+	import SyncInterval from './SyncInterval.svelte';
 
 	let activeTab = 'view';
 	$: calendars = data.calendars;
@@ -527,6 +528,15 @@
 				</div>
 			</div>
 		{:else}
+			<!-- Sync Settings -->
+			<!-- <div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
+				<h2 class="mb-4 text-xl font-semibold">Sync Settings</h2>
+				<p class="mb-4 text-sm text-gray-600">
+					Configure how often the system checks for updates from external calendars.
+				</p>
+				<SyncInterval />
+			</div> -->
+
 			<!-- Add New Calendar Form -->
 			<div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
 				<h2 class="mb-4 text-xl font-semibold">Add New Calendar</h2>
