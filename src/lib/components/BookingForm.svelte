@@ -38,14 +38,14 @@
         const response = await fetch('/api/calendar');
         const data = await response.json();
         const blockedDates = data.bookedDates.map((date: any) => ({
-          start: convertToManila(new Date(date.start)),
-          end: convertToManila(new Date(date.end))
+          start: new Date(date.start),
+          end: new Date(date.end)
         }));
   
         // Find the first available date
-        let currentDate = convertToManila(new Date());
+        let currentDate = new Date();
         while (blockedDates.some(blocked => 
-          isWithinInterval(startOfDay(currentDate), { 
+          isWithinInterval(startOfDay(convertToManila(currentDate)), { 
             start: startOfDay(blocked.start), 
             end: endOfDay(blocked.end) 
           })
@@ -53,14 +53,18 @@
           currentDate = addDays(currentDate, 1);
         }
   
-        // Set initial dates
-        checkIn = format(currentDate, 'yyyy-MM-dd');
-        checkOut = format(addDays(currentDate, 1), 'yyyy-MM-dd');
+        // Set initial dates - convert to Manila time before formatting
+        const manilaCheckIn = convertToManila(currentDate);
+        const manilaCheckOut = convertToManila(addDays(currentDate, 1));
+        
+        checkIn = format(manilaCheckIn, 'yyyy-MM-dd');
+        checkOut = format(manilaCheckOut, 'yyyy-MM-dd');
       } catch (error) {
         console.error('Failed to initialize dates:', error);
-        const currentDate = convertToManila(new Date());
-        checkIn = format(currentDate, 'yyyy-MM-dd');
-        checkOut = format(addDays(currentDate, 1), 'yyyy-MM-dd');
+        // Fallback dates - also convert to Manila time
+        const manilaDate = convertToManila(new Date());
+        checkIn = format(manilaDate, 'yyyy-MM-dd');
+        checkOut = format(convertToManila(addDays(new Date(), 1)), 'yyyy-MM-dd');
       }
     }
   
