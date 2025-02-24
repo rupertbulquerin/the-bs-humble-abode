@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import GCashPayment from './GCashPayment.svelte';
     import PaymentMethodSelect from './PaymentMethodSelect.svelte';
+	import { convertToManila } from '$lib/dates';
   
     export let price: number;
     export let extraPersonFee: number;
@@ -42,7 +43,7 @@
         }));
   
         // Find the first available date
-        let currentDate = new Date();
+        let currentDate = convertToManila(new Date());  // Convert current date to Manila time
         while (blockedDates.some(blocked => 
           isWithinInterval(currentDate, { start: blocked.start, end: blocked.end })
         )) {
@@ -55,8 +56,9 @@
       } catch (error) {
         console.error('Failed to initialize dates:', error);
         // Fallback to current date if API fails
-        checkIn = format(new Date(), 'yyyy-MM-dd');
-        checkOut = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+        const currentDate = convertToManila(new Date());  // Convert fallback date to Manila time
+        checkIn = format(currentDate, 'yyyy-MM-dd');
+        checkOut = format(addDays(currentDate, 1), 'yyyy-MM-dd');
       }
     }
   

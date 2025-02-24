@@ -41,7 +41,10 @@ async function fetchAndParseCalendar(url: string) {
 	}
 }
 
-export async function GET() {
+export async function GET({ request }) {
+	const userTimezone = request.headers.get('x-vercel-ip-timezone');
+	const now = new Date(); 
+	console.log('userTimezone', request.headers);
 	try {
 		const [calendars, blockedDates] = await Promise.all([
 			prisma.calendar.findMany({
