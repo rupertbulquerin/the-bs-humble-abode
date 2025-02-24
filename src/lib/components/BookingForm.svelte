@@ -231,7 +231,7 @@
                   class="mt-1 w-full sm:w-40 rounded-md border-gray-300 px-4 py-2.5 text-left shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 >
                   {#if checkIn}
-                    {format(convertToManila(new Date(checkIn)), 'MMM d, yyyy')}
+                    {format(new Date(checkIn), 'MMM d, yyyy')}
                   {:else}
                     Add date
                   {/if}
@@ -247,7 +247,7 @@
                   class="mt-1 w-full sm:w-40 rounded-md border-gray-300 px-4 py-2.5 text-left shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
                 >
                   {#if checkOut}
-                    {format(convertToManila(new Date(checkOut)), 'MMM d, yyyy')}
+                    {format(new Date(checkOut), 'MMM d, yyyy')}
                   {:else}
                     Add date
                   {/if}
