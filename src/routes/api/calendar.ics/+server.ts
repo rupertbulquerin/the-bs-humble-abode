@@ -1,22 +1,19 @@
 import { prisma } from '$lib/prisma';
 import { format, addDays } from 'date-fns';
 import { json } from '@sveltejs/kit';
-import { convertToManila, convertFromManila } from '$lib/dates';
 
 export async function GET() {
   try {
-    const currentDate = convertFromManila(new Date());
-    
     const [bookings, blockedDates] = await Promise.all([
       prisma.booking.findMany({
         where: {
-          checkOut: { gte: currentDate },
+          checkOut: { gte: new Date() },
           status: 'confirmed'
         }
       }),
       prisma.blockedDate.findMany({
         where: {
-          endDate: { gte: currentDate }
+          endDate: { gte: new Date() }
         }
       })
     ]);
@@ -34,8 +31,8 @@ export async function GET() {
         'BEGIN:VEVENT',
         `UID:booking-${booking.id}@the-bs-humble-abode`,
         `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
-        `DTSTART;VALUE=DATE:${format(convertToManila(new Date(booking.checkIn)), 'yyyyMMdd')}`,
-        `DTEND;VALUE=DATE:${format(addDays(convertToManila(new Date(booking.checkOut)), 1), 'yyyyMMdd')}`,
+        `DTSTART;VALUE=DATE:${format(new Date(booking.checkIn), 'yyyyMMdd')}`,
+        `DTEND;VALUE=DATE:${format(new Date(booking.checkOut), 'yyyyMMdd')}`,
         `SUMMARY:Booking: ${booking.firstName} ${booking.lastName} (${booking.guests} guests)`,
         'STATUS:CONFIRMED',
         'TRANSP:OPAQUE',
@@ -47,8 +44,8 @@ export async function GET() {
         'BEGIN:VEVENT',
         `UID:blocked-${blocked.id}@the-bs-humble-abode`,
         `DTSTAMP:${format(new Date(), "yyyyMMdd'T'HHmmss'Z'")}`,
-        `DTSTART;VALUE=DATE:${format(convertToManila(new Date(blocked.startDate)), 'yyyyMMdd')}`,
-        `DTEND;VALUE=DATE:${format(addDays(convertToManila(new Date(blocked.endDate)), 1), 'yyyyMMdd')}`,
+        `DTSTART;VALUE=DATE:${format(new Date(blocked.startDate), 'yyyyMMdd')}`,
+        `DTEND;VALUE=DATE:${format(new Date(blocked.endDate), 'yyyyMMdd')}`,
         `SUMMARY:Unavailable - ${blocked.reason}`,
         'STATUS:CONFIRMED',
         'TRANSP:OPAQUE',
