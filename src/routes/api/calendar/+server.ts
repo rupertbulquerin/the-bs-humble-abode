@@ -41,9 +41,16 @@ async function fetchAndParseCalendar(url: string) {
 	}
 }
 
+// Define the type for booked dates
+interface BookedDate {
+	start: Date;
+	end: Date;
+	source: string;
+}
+
 export async function GET({ request }) {
 	try {
-		const [calendars, blockedDates] = await Promise.all([
+		const [calendars, blockedDates, confirmedBookings] = await Promise.all([
 			prisma.calendar.findMany({
 				where: { isActive: true }
 			}),
@@ -53,10 +60,18 @@ export async function GET({ request }) {
 						gte: convertFromManila(new Date())
 					}
 				}
+			}),
+			prisma.booking.findMany({
+				where: {
+					status: 'confirmed',
+					checkOut: {
+						gte: convertFromManila(new Date())
+					}
+				}
 			})
 		]);
 
-		const bookedDates = [];
+		const bookedDates: BookedDate[] = [];
 
 		// Fetch and parse external calendar events
 		for (const calendar of calendars) {
@@ -83,6 +98,18 @@ export async function GET({ request }) {
 				start: startOfDay(convertToManila(startDate)),
 				end: endOfDay(convertToManila(endDate)),
 				source: blocked.source || ('Manual Block: ' + blocked.reason)
+			});
+		});
+
+		// Add confirmed bookings to bookedDates array
+		confirmedBookings.forEach((booking) => {
+			const checkInDate = new Date(booking.checkIn);
+			const checkOutDate = new Date(booking.checkOut);
+			
+			bookedDates.push({
+				start: startOfDay(convertToManila(checkInDate)),
+				end: endOfDay(convertToManila(checkOutDate)),
+				source: `Booking: ${booking.firstName} ${booking.lastName}`
 			});
 		});
 
