@@ -6,6 +6,7 @@
   let booking: any = null;
   let loading = true;
   let error = null;
+  let updating = false;
 
   onMount(async () => {
     try {
@@ -19,6 +20,27 @@
       loading = false;
     }
   });
+
+  async function updatePaymentStatus(newStatus: 'paid' | 'pending') {
+    try {
+      updating = true;
+      const response = await fetch(`/api/bookings/${$page.params.bookingId}/payment-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ paymentStatus: newStatus }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update payment status');
+      const data = await response.json();
+      booking = { ...booking, paymentStatus: data.paymentStatus };
+    } catch (err) {
+      error = 'Failed to update payment status';
+    } finally {
+      updating = false;
+    }
+  }
 
   function getStatusColor(status: string) {
     return {
@@ -106,7 +128,7 @@
             </div>
             <div>
               <label class="text-sm font-medium text-gray-500">Payment Status</label>
-              <div class="mt-2">
+              <div class="mt-2 flex items-center gap-2">
                 <span class={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
                   booking.paymentStatus === 'paid' 
                     ? 'bg-green-100 text-green-800 border border-green-200'
@@ -114,6 +136,29 @@
                 }`}>
                   {booking.paymentStatus}
                 </span>
+                <button
+                  disabled={updating}
+                  class={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-inset transition-colors ${
+                    booking.paymentStatus === 'pending'
+                      ? 'bg-green-50 text-green-700 ring-green-200 hover:bg-green-100'
+                      : 'bg-yellow-50 text-yellow-700 ring-yellow-200 hover:bg-yellow-100'
+                  } disabled:opacity-50`}
+                  on:click={() => updatePaymentStatus(booking.paymentStatus === 'paid' ? 'pending' : 'paid')}
+                >
+                  {#if updating}
+                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  {:else if booking.paymentStatus === 'pending'}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                    Mark as Paid
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                    </svg>
+                    Mark as Pending
+                  {/if}
+                </button>
               </div>
             </div>
           </div>

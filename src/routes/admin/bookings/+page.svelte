@@ -113,6 +113,9 @@
                 Stay Period
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Nights
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -146,6 +149,11 @@
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-900">{format(new Date(booking.checkIn), 'MMM d, yyyy')}</div>
                   <div class="text-sm text-gray-500">to {format(new Date(booking.checkOut), 'MMM d, yyyy')}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-sm text-gray-900">
+                    {Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24))}
+                  </div>
                 </td>
                 <td class="px-6 py-4">
                   <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
