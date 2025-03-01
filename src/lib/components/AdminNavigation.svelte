@@ -5,7 +5,8 @@
   const navItems = [
     { label: 'Dashboard', href: '/admin' },
     { label: 'Bookings', href: '/admin/bookings' },
-    { label: 'Calendar', href: '/admin/calendar' }
+    { label: 'Calendar', href: '/admin/calendar' },
+    { label: 'Reviews', href: '/admin/reviews' }
   ];
 
   async function handleLogout() {
