@@ -1,6 +1,14 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+	host: 'smtp.hostinger.com', // Hostinger SMTP server
+	port: 465,
+	secure: true, // use SSL/TLS
+	auth: {
+		user: 'contact@thebshumbleabode.com',
+		pass: process.env.EMAIL_PASSWORD // Store this in your environment variables
+	}
+});
 
 export async function sendEmail({ to, subject, html }: { 
 	to: string; 
@@ -8,7 +16,7 @@ export async function sendEmail({ to, subject, html }: {
 	html: string; 
 }) {
 	try {
-		const { data, error } = await resend.emails.send({
+		const info = await transporter.sendMail({
 			from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
 			replyTo: 'contact@thebshumbleabode.com',
 			to,
@@ -16,13 +24,8 @@ export async function sendEmail({ to, subject, html }: {
 			html
 		});
 
-		if (error) {
-			console.error('Resend API error:', error);
-			return { error: error.message };
-		}
-
-		console.log('Email sent successfully:', data);
-		return { success: true, data };
+		console.log('Email sent successfully:', info);
+		return { success: true, data: info };
 	} catch (error) {
 		console.error('Failed to send email:', error);
 		return { error: 'Failed to send email' };
@@ -85,17 +88,9 @@ export async function sendBookingEmail(booking: any) {
     </div>
   `;
 
-	const { data, error } = await resend.emails.send({
-		from: 'The B\'s Humble Abode <contact@thebshumbleabode.com>',
-		replyTo: 'contact@thebshumbleabode.com',
+	return sendEmail({
 		to: booking.email,
 		subject: 'Booking Confirmation - Payment Required',
 		html
 	});
-
-	if (error) {
-		console.error('Resend API error:', error);
-		return { error: error.message };
-	}
-	return { success: true, data };
 }
