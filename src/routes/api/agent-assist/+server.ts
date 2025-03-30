@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
-    const { question } = await request.json();
+    const { question, history } = await request.json();
     
     // Call your smart agent endpoint here
     const response = await fetch('https://agent-assist.xtendops.com/api/agent-assist', {
@@ -14,11 +14,12 @@ export const POST: RequestHandler = async ({ request }) => {
       },
       body: JSON.stringify({
         question,
+        history,
         aiAgentId: 'do4bdMHiFrAzLi68W',
         responseType: 'json'
       })
     });
-
+    console.log(response);
     // Get the JSON response
     const data = await response.json();
     

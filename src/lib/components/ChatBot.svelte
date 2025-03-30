@@ -24,6 +24,13 @@
     }
   }
   
+  // Add this function to format chat history
+  function formatChatHistory(): string[] {
+    return chatHistory.map(msg => 
+      `${msg.role === 'user' ? 'Customer' : 'Agent'}: ${msg.content}`
+    );
+  }
+  
   async function sendMessage() {
     if (!message.trim()) return;
     
@@ -43,7 +50,8 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          question: userMessage
+          question: userMessage,
+          history: formatChatHistory() // Add chat history to request
         }),
         signal: controller.signal
       });
