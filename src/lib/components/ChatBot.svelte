@@ -31,6 +31,17 @@
     );
   }
   
+  // Add this function to scroll to bottom
+  function scrollToBottom() {
+    const chatContainer = document.querySelector('.chat-messages');
+    if (chatContainer) {
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }
+  
   async function sendMessage() {
     if (!message.trim()) return;
     
@@ -38,6 +49,9 @@
     chatHistory = [...chatHistory, { role: 'user', content: userMessage }];
     message = '';
     isLoading = true;
+    
+    // Scroll after user message is added
+    setTimeout(scrollToBottom, 50);
 
     // Abort any ongoing request
     controller?.abort();
@@ -70,6 +84,8 @@
           role: 'assistant', 
           content: data.text 
         }];
+        // Scroll after assistant response
+        setTimeout(scrollToBottom, 50);
       } else if (data.error) {
         throw new Error(data.error);
       }
@@ -106,7 +122,7 @@
       </div>
 
       <!-- Chat Messages -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <div class="flex-1 overflow-y-auto p-4 space-y-4 chat-messages">
         {#each chatHistory as message}
           <div class={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div class={`max-w-[80%] rounded-lg p-3 ${
