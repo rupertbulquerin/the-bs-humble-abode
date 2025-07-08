@@ -7,10 +7,10 @@
   
   const { reviews } = data;
 
-  const property = {
-    name: 'The B\'s Humble Abode',
+  let property = {
+    name: "The B's Humble Abode",
     location: 'Avida Tower 4, Donato Pison Avenue, Brgy. San Rafael, Mandurriao, Iloilo City, 5000',
-    price: 1500,
+    price: 1600, // default, will be overwritten
     extraPersonFee: 300,
     rating: 4.9,
     description: 'Welcome to our cozy unit in Avida Towers Iloilo! Our space is perfect for both short and extended stays, offering modern amenities and a convenient location in the heart of Iloilo City.',
@@ -24,8 +24,10 @@
       'Hot and cold shower',
       'Toilet with bidet',
       'Free hygiene kit',
-      'Free Wi-Fi',
-      'Netflix'
+      'Fast Wifi Fiber connection',
+      '55" Smart TV w/ Netflix',
+      'Sofa Bed',
+      'Flat Iron'
     ],
     buildingAmenities: [
       'Pool access good for 2 (Tuesday-Sunday only, Monday maintenance)',
@@ -45,6 +47,18 @@
       { name: 'ICC (Iloilo Convention Center)', distance: '4.2km' }
     ]
   };
+
+  async function fetchRoomRate() {
+    try {
+      const response = await fetch('/api/admin/settings/room-rate');
+      const data = await response.json();
+      property.price = data.rate;
+    } catch (err) {
+      // fallback to default
+    }
+  }
+
+  fetchRoomRate();
 
   // Banner carousel images
   const bannerImages = [

@@ -1,13 +1,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { format } from 'date-fns';
+  import RoomRate from './RoomRate.svelte';
   
   let stats = {
     totalBookings: 0,
     upcomingBookings: 0,
     todayCheckIns: 0,
     todayCheckOuts: 0,
-    recentBookings: []
+    recentBookings: [] as {
+      firstName: string;
+      lastName: string;
+      checkIn: string;
+      checkOut: string;
+      totalPrice: number;
+      status: string;
+      createdAt: string;
+    }[]
   };
 
   onMount(async () => {
@@ -26,6 +35,7 @@
 </script>
 
 <div class="container mx-auto p-6">
+  <RoomRate />
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
     <p class="mt-2 text-sm text-gray-600">Overview of your property's booking statistics</p>

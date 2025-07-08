@@ -1,10 +1,21 @@
 import { json } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
-import { sendBookingEmail } from '$lib/email';
+import { sendBookingEmail, sendAdminBookingNotification } from '$lib/email';
+
+const DEFAULT_ROOM_RATE = 1600;
+
+async function getRoomRate() {
+  const setting = await prisma.setting.findUnique({ where: { key: 'roomRate' } });
+  return setting ? parseInt(setting.value) : DEFAULT_ROOM_RATE;
+}
 
 export async function POST({ request }) {
   try {
     const data = await request.json();
+    let basePrice = data.basePrice;
+    if (!basePrice) {
+      basePrice = await getRoomRate();
+    }
     
     const booking = await prisma.booking.create({
       data: {
@@ -16,7 +27,7 @@ export async function POST({ request }) {
         checkOut: new Date(data.checkOut),
         guests: data.guests,
         specialRequests: data.specialRequests,
-        basePrice: data.basePrice,
+        basePrice: basePrice,
         extraGuestsFee: data.extraGuestsFee,
         totalPrice: data.totalPrice,
         status: data.status,
@@ -25,8 +36,10 @@ export async function POST({ request }) {
       }
     });
 
-    // Send confirmation email
+    // Send confirmation email to guest
     await sendBookingEmail(booking);
+    // Send notification email to admin
+    await sendAdminBookingNotification(booking);
 
     return json({ booking });
   } catch (error) {

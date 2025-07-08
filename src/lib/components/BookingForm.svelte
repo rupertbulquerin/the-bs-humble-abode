@@ -44,7 +44,7 @@
   
         // Find the first available date
         let currentDate = new Date();
-        while (blockedDates.some(blocked => 
+        while (blockedDates.some((blocked: { start: Date; end: Date }) => 
           isWithinInterval(startOfDay(convertToManila(currentDate)), { 
             start: startOfDay(blocked.start), 
             end: endOfDay(blocked.end) 
@@ -157,6 +157,7 @@
       showSuccessModal = false;
       bookingData = null;
       isProcessing = false;
+      initializeDates();
     }
   </script>
   
@@ -281,6 +282,7 @@
                 bind:checkOut 
                 bind:showCalendar
                 class_name="date-picker-trigger"
+                pricePerNight={price}
               />
             </div>
           </div>
@@ -341,7 +343,7 @@
   {/if}
 
   {#if showSuccessModal}
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
         <div class="text-center">
           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -350,7 +352,12 @@
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 mb-2">Booking Successful!</h3>
-          <p class="text-sm text-gray-500 mb-4">{paymentInstructions}</p>
+          <p class="text-sm text-gray-500 mb-2">{paymentInstructions}</p>
+          <div class="mb-4">
+            <span class="block text-xs text-yellow-600 bg-yellow-50 rounded px-2 py-1">
+              <strong>Note:</strong> Please check your <span class="font-semibold">Spam</span> or <span class="font-semibold">Junk</span> folder if you don't see the payment instructions in your inbox.
+            </span>
+          </div>
           <button
             on:click={resetFields}
             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:text-sm"
