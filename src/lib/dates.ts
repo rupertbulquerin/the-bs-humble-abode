@@ -8,9 +8,10 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 export function convertToManila(date: Date): Date {
   if (!date) return date;
   
-  // In production, subtract one day to align with Manila timezone
+  // Convert UTC to Manila time (UTC+8)
   if (IS_PRODUCTION) {
-    return subDays(date, 1);
+    // Create a date with Manila timezone offset
+    return toZonedTime(date, TIMEZONE);
   }
   
   return date;
@@ -19,9 +20,13 @@ export function convertToManila(date: Date): Date {
 export function convertFromManila(date: Date): Date {
   if (!date) return date;
   
-  // In production, add one day to align with Manila timezone
+  // Convert Manila time to UTC for storage
   if (IS_PRODUCTION) {
-    return addDays(date, 1);
+    // Assume the input date is in Manila time and convert to UTC
+    const manilaDate = new Date(date.toLocaleString('en-US', { timeZone: TIMEZONE }));
+    const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+    const offset = manilaDate.getTime() - utcDate.getTime();
+    return new Date(date.getTime() - offset);
   }
   
   return date;

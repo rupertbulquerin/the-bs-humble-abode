@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const transporter = nodemailer.createTransport({
 	host: 'smtp.hostinger.com', // Hostinger SMTP server
@@ -70,8 +71,8 @@ export async function sendBookingEmail(booking: any) {
       
       <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Booking Details</h3>
-        <p><strong>Check-in:</strong> ${new Date(booking.checkIn).toLocaleDateString()}</p>
-        <p><strong>Check-out:</strong> ${new Date(booking.checkOut).toLocaleDateString()}</p>
+        <p><strong>Check-in:</strong> ${formatInTimeZone(new Date(booking.checkIn), 'Asia/Manila', 'MMM d, yyyy')}</p>
+        <p><strong>Check-out:</strong> ${formatInTimeZone(new Date(booking.checkOut), 'Asia/Manila', 'MMM d, yyyy')}</p>
         <p><strong>Number of Guests:</strong> ${booking.guests}</p>
         <p><strong>Total Amount:</strong> ₱${booking.totalPrice}</p>
       </div>
@@ -104,8 +105,8 @@ export async function sendAdminBookingNotification(booking: any) {
         <p><strong>Name:</strong> ${booking.firstName} ${booking.lastName}</p>
         <p><strong>Email:</strong> ${booking.email}</p>
         <p><strong>Phone:</strong> ${booking.phone}</p>
-        <p><strong>Check-in:</strong> ${new Date(booking.checkIn).toLocaleDateString()}</p>
-        <p><strong>Check-out:</strong> ${new Date(booking.checkOut).toLocaleDateString()}</p>
+        <p><strong>Check-in:</strong> ${formatInTimeZone(new Date(booking.checkIn), 'Asia/Manila', 'MMM d, yyyy')}</p>
+        <p><strong>Check-out:</strong> ${formatInTimeZone(new Date(booking.checkOut), 'Asia/Manila', 'MMM d, yyyy')}</p>
         <p><strong>Guests:</strong> ${booking.guests}</p>
         <p><strong>Special Requests:</strong> ${booking.specialRequests || 'None'}</p>
         <p><strong>Total Price:</strong> ₱${booking.totalPrice}</p>
