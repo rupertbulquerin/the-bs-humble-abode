@@ -2,6 +2,10 @@
 	import '../app.css';
 	import Navigation from '$lib/components/Navigation.svelte';
 	import ChatBot from '$lib/components/ChatBot.svelte';
+
+	/** Set to true to re-enable the chatbot */
+	const CHATBOT_ENABLED = false;
+
 	let { children } = $props();
 </script>
 
@@ -9,4 +13,6 @@
 <div class="pt-16"> <!-- Add padding-top to account for fixed header -->
 	{@render children()}
 </div>
-<ChatBot />
+{#if CHATBOT_ENABLED}
+	<ChatBot />
+{/if}
