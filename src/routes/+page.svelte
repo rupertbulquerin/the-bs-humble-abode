@@ -23,7 +23,6 @@
       'Electric kettle',
       'Hot and cold shower',
       'Toilet with bidet',
-      'Free hygiene kit',
       'Fast Wifi Fiber connection',
       '55" Smart TV w/ Netflix',
       'Sofa Bed',
@@ -31,7 +30,7 @@
     ],
     buildingAmenities: [
       'Pool access good for 2 (Tuesday-Sunday only, Monday maintenance)',
-      'Gym access',
+      'Gym access only for long term tenants',
       '24/7 security'
     ],
     nearbyPlaces: [
