@@ -101,6 +101,16 @@
       url: '/images/img8.jpg',
       title: 'Perfect Stay',
       subtitle: 'Making memories in Iloilo'
+    },
+    {
+      url: '/images/img9.jpg',
+      title: 'Serene Escape',
+      subtitle: 'Peace and tranquility await'
+    },
+    {
+      url: '/images/img10.jpg',
+      title: 'Dream Destination',
+      subtitle: 'Where every moment shines'
     }
   ];
 
